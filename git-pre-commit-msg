@@ -1,0 +1,15 @@
+#!/bin/zsh
+
+# Ensure no comments over 72 characters
+
+message_limit=72
+commit_message_file=$1
+message=`head -n1 $commit_message_file`
+message_lenght=${#message}
+
+if [ ${message_lenght} -gt ${message_limit} ]; then
+    message_diff=$(($message_lenght-$message_limit))
+
+    echo "The commit message has ${message_diff} too many characters (limit of ${message_limit})."
+    exit 1
+fi
