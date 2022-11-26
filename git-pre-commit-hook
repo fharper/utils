@@ -1,1 +1,31 @@
-/Users/fharper/.git/hooks/pre-commit
+#!/bin/zsh
+
+# if not one of my repo
+MY_REPOS=(
+  "bookmarlets"
+  "github-notion-star"
+  "karabiner-elements-modifications"
+  "macsetup"
+  "repository-template"
+  "resume"
+  "support-emails"
+  "utils"
+)
+
+REPO=$(basename "$PWD")
+
+if [ $MY_REPOS[(Ie)$REPO] -eq 0 ]; then
+  # prevent commit to local main branch
+  BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+  if [[ "$BRANCH" == "master" || "$BRANCH" == "main" ]]; then
+    echo "You are on branch $BRANCH. Are you sure you want to commit to this branch?"
+    vared -p "Are you sure you want to do that? [y/N]: " -c ANSWER
+
+    if [ "$ANSWER" != "y" ] && [ "$ANSWER" != "Y" ] ; then
+      exit 1
+    fi
+  fi
+fi
+
+exit 0
