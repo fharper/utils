@@ -54,6 +54,38 @@ then
     fi
 fi
 
+# kubectl
+# https://github.com/charmbracelet/gum/
+if [[ -n $(which kubectl >/dev/null) ]] ;
+then
+    echo "kubectl is used for the Kubernetes utilities. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
+    read -r ANSWER
+
+    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+    then
+        tput sc && brew install kubectl && tput rc && tput ed
+    else
+        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/kubernetes/kubectl."
+        exit
+    fi
+fi
+
+# jq
+# https://github.com/jqlang/jq
+if [[ -n $(which jq >/dev/null) ]] ;
+then
+    echo "jq is used to parse JSON. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
+    read -r ANSWER
+
+    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+    then
+        tput sc && brew install jq && tput rc && tput ed
+    else
+        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/jqlang/jq."
+        exit
+    fi
+fi
+
 #########
 # Menus #
 #########
@@ -70,7 +102,8 @@ tput sc
 gum format -- "What tooling do you want to use utils for?"
 local tooling=$(gum choose \
     "1- GitHub" \
-    "2- EXIT" \
+    "2- Kubernetes" \
+    "3- EXIT" \
 )
 
 # GitHub Actions Submenu
@@ -80,6 +113,14 @@ if [[ "$tooling" == 1* ]] ; then
     gum format -- "What do you to do with $tooling_name?"
     local action=$(gum choose \
         "1- Get user information" \
+    )
+fi
+
+# Kubernetes Actions Submenu
+if [[ "$tooling" == *"Kubernetes"* ]] ; then
+    gum format -- "What do you to do with Kubernetes?"
+    action=$(gum choose \
+        "1- Get ports fowarded" \
     )
 fi
 
@@ -97,6 +138,12 @@ if [[ "$tooling" == 1* && "$action" == 1* ]] ; then
 
     echo ""
     curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq '.name, .email, .blog' | tr -d '"' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq '.[] .url' | tr -d '"'
+
+#
+# Kubernetes: get ports forwarded from a cluster
+#
+elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ; then
+    kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
 
 #
 # Quitting
