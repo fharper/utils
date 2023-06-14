@@ -98,7 +98,7 @@ gum style --foreground 212 --border-foreground 212 --border double --align cente
 #
 # Tooling menu
 #
-tput sc
+local action=""
 gum format -- "What tooling do you want to use utils for?"
 local tooling=$(gum choose \
     "1- GitHub" \
@@ -107,11 +107,9 @@ local tooling=$(gum choose \
 )
 
 # GitHub Actions Submenu
-local action=""
-local tooling_name=${tooling//[0-9]- /}
-if [[ "$tooling" == 1* ]] ; then
-    gum format -- "What do you to do with $tooling_name?"
-    local action=$(gum choose \
+if [[ "$tooling" == *"GitHub"* ]] ; then
+    gum format -- "What do you to do with GitHub?"
+    action=$(gum choose \
         "1- Get user information" \
     )
 fi
@@ -131,8 +129,7 @@ fi
 #
 # GitHub: get information about an user
 #
-if [[ "$tooling" == 1* && "$action" == 1* ]] ; then
-
+if [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; then
     gum format -- "Which username?"
     local username=$(gum input --placeholder "fharper")
 
@@ -148,7 +145,7 @@ elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ;
 #
 # Quitting
 #
-elif [[ "$tooling" == 2* ]] ; then
+elif [[ "$tooling" == *"EXIT"* ]] ; then
     echo "\n"
     say "Goodbye my lover"
     say "Goodbye my friend"
