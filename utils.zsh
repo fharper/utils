@@ -37,6 +37,9 @@ function say {
 ################
 # Dependencies #
 ################
+
+# Gum
+# https://github.com/charmbracelet/gum/
 if [[ -n $(which gum >/dev/null) ]] ;
 then
     echo "gum is used to give a better experience. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
