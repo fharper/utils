@@ -103,7 +103,8 @@ gum format -- "What tooling do you want to use utils for?"
 local tooling=$(gum choose \
     "1- GitHub" \
     "2- Kubernetes" \
-    "3- EXIT" \
+    "3- HTTP" \
+    "4- EXIT" \
 )
 
 # GitHub Actions Submenu
@@ -119,6 +120,14 @@ if [[ "$tooling" == *"Kubernetes"* ]] ; then
     gum format -- "What do you to do with Kubernetes?"
     action=$(gum choose \
         "1- Get ports fowarded" \
+    )
+fi
+
+# HTTP Actions Submenu
+if [[ "$tooling" == *"HTTP"* ]] ; then
+    gum format -- "What do you to do with HTTP?"
+    action=$(gum choose \
+        "1- Find if website is DDoS protected" \
     )
 fi
 
@@ -141,6 +150,16 @@ if [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; the
 #
 elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ; then
     kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
+
+#
+# HTTP: find if website is DDoS protected
+#
+elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protected"* ]] ; then
+    gum format -- "Which site?"
+    local site=$(gum input --placeholder "https://fred.dev")
+
+    echo ""
+    curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
 
 #
 # Quitting
