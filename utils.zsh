@@ -104,7 +104,8 @@ local tooling=$(gum choose \
     "1- GitHub" \
     "2- Kubernetes" \
     "3- HTTP" \
-    "4- EXIT" \
+    "4- YouTube" \
+    "5- EXIT" \
 )
 
 # GitHub Actions Submenu
@@ -128,6 +129,14 @@ if [[ "$tooling" == *"HTTP"* ]] ; then
     gum format -- "What do you to do with HTTP?"
     action=$(gum choose \
         "1- Find if website is DDoS protected" \
+    )
+fi
+
+# YouTube Actions Submenu
+if [[ "$tooling" == *"YouTube"* ]] ; then
+    gum format -- "What do you to do with YouTube?"
+    action=$(gum choose \
+        "1- Download a video thumbnail" \
     )
 fi
 
@@ -160,6 +169,17 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
 
     echo ""
     curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+
+#
+# YouTube: download a video thumbnail
+#
+elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"* ]] ; then
+    gum format -- "Which video?"
+    local video=$(gum input --placeholder "https://www.youtube.com/watch?v=-8pX4ayi_XY")
+
+    id=$(echo "$video" | sed 's/.*v=//g')
+echo "https://img.youtube.com/vi/$id/maxresdefault.jpg"
+    curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
 
 #
 # Quitting
