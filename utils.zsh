@@ -200,7 +200,6 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     local video=$(gum input --placeholder "https://www.youtube.com/watch?v=-8pX4ayi_XY")
 
     id=$(echo "$video" | sed 's/.*v=//g')
-echo "https://img.youtube.com/vi/$id/maxresdefault.jpg"
     curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
 
 #
