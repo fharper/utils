@@ -38,6 +38,22 @@ function say {
 # Dependencies #
 ################
 
+# Curl
+# https://github.com/curl/curl
+if [[ -n $(which curl >/dev/null) ]] ;
+then
+    echo "curl is used to retrieve information from URLs. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
+    read -r ANSWER
+
+    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+    then
+        tput sc && brew install curl && tput rc && tput ed
+    else
+        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/curl/curl."
+        exit
+    fi
+fi
+
 # Gum
 # https://github.com/charmbracelet/gum/
 if [[ -n $(which gum >/dev/null) ]] ;
