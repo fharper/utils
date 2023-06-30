@@ -104,8 +104,9 @@ local tooling=$(gum choose \
     "1- GitHub" \
     "2- Kubernetes" \
     "3- HTTP" \
-    "4- YouTube" \
-    "5- EXIT" \
+    "4- PDF" \
+    "5- YouTube" \
+    "6- EXIT" \
 )
 
 # GitHub Actions Submenu
@@ -113,6 +114,14 @@ if [[ "$tooling" == *"GitHub"* ]] ; then
     gum format -- "What do you to do with GitHub?"
     action=$(gum choose \
         "1- Get user information" \
+    )
+fi
+
+# PDF Actions Submenu
+if [[ "$tooling" == *"PDF"* ]] ; then
+    gum format -- "What do you to do with the PDF?"
+    action=$(gum choose \
+        "1- Convert pages to images" \
     )
 fi
 
@@ -169,6 +178,19 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
 
     echo ""
     curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+
+#
+# PDF: convert pages to images
+#
+elif [[ "$tooling" == *"PDF"* && "$action" == *"Convert pages to images"* ]] ; then
+    gum format -- "What file?"
+    local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
+    mkdir -p pdf-images
+
+    echo ""
+    local filename=$(basename "$file" .pdf)
+    convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
+    echo "images are in the pdf-images folder"
 
 #
 # YouTube: download a video thumbnail
