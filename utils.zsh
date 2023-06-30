@@ -54,6 +54,22 @@ then
     fi
 fi
 
+# jq
+# https://github.com/jqlang/jq
+if [[ -n $(which jq >/dev/null) ]] ;
+then
+    echo "jq is used to parse JSON. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
+    read -r ANSWER
+
+    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+    then
+        tput sc && brew install jq && tput rc && tput ed
+    else
+        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/jqlang/jq."
+        exit
+    fi
+fi
+
 # kubectl
 # https://github.com/charmbracelet/gum/
 if [[ -n $(which kubectl >/dev/null) ]] ;
@@ -70,21 +86,6 @@ then
     fi
 fi
 
-# jq
-# https://github.com/jqlang/jq
-if [[ -n $(which jq >/dev/null) ]] ;
-then
-    echo "jq is used to parse JSON. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install jq && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/jqlang/jq."
-        exit
-    fi
-fi
 
 #########
 # Menus #
