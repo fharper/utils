@@ -54,6 +54,22 @@ then
     fi
 fi
 
+# ImageMagick
+# https://github.com/ImageMagick/ImageMagick
+if [[ -n $(which convert >/dev/null) ]] ;
+then
+    echo "ImageMagick is used to do diverse actions on images and PDFs. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
+    read -r ANSWER
+
+    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+    then
+        tput sc && brew install imagemagick && tput rc && tput ed
+    else
+        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/ImageMagick/ImageMagick."
+        exit
+    fi
+fi
+
 # jq
 # https://github.com/jqlang/jq
 if [[ -n $(which jq >/dev/null) ]] ;
