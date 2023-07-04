@@ -173,12 +173,14 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
     action=$(gum choose \
         "1- Check if encrypted" \
         "2- Check if protected" \
-        "3- Compress PDF (lossless)" \
+        "3- Compress (lossless)" \
         "4- Convert pages to images" \
-        "5- Extract embedded images" \
-        "6- List embedded fonts" \
-        "7- List embedded images" \
-        "8- List number of pages" \
+        "5- Crack protected" \
+        "6- Decrypt" \
+        "7- Extract embedded images" \
+        "8- List embedded fonts" \
+        "9- List embedded images" \
+        "10- List number of pages" \
         "↵ Go back" \
     )
 
@@ -299,7 +301,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
     #
     # Compress PDF (lossless)
     #
-    elif [[ "$action" == *"Compress PDF (lossless)"* ]] ; then
+    elif [[ "$action" == *"Compress (lossless)"* ]] ; then
         if [[ $(which gs | grep "not found" ) ]] ; then
             installApp "Ghostscript" "https://www.ghostscript.com"
         else
@@ -448,6 +450,52 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 echo ""
             else
                 error "No file was selected."
+            fi
+        fi
+
+    #
+    # Decrypt
+    #
+    elif [[ "$action" == *"Decrypt"* ]] ; then
+
+        if [[ $(which qpdf | grep "not found" ) ]] ; then
+            installApp "qpdf" "https://github.com/qpdf/qpdf"
+        else
+            local file=$(getFile "PDF" ".pdf")
+
+            if [[ $file ]] ; then
+                echo ""
+                local filename=$(basename "$file" .pdf)
+                local unlocked_file="$filename-unlocked.pdf"
+                qpdf -decrypt "$file" "$unlocked_file"
+                echo "File ${YELLOW}$unlocked_file${NOCOLOR} unlocked/decrypted"
+                echo ""
+            else
+                error "No file was selected."
+            fi
+        fi
+
+    #
+    # Crack protected
+    #
+    elif [[ "$action" == *"Crack protected"* ]] ; then
+
+        if [[ $(which pdfcrack | grep "not found" ) ]] ; then
+            installApp "pdfcrack" "https://sourceforge.net/projects/pdfcrack/"
+        else
+            local confirmation=$(gum confirm "Is it on a PDF you own or have the right to view but lost the password?" && echo "true" || echo "false")
+
+            if [[ $confirmation == "true" ]] ; then
+
+                local file=$(getFile "PDF" ".pdf")
+
+                if [[ $file ]] ; then
+                    echo ""
+                    pdfcrack -f "$file"
+                    echo ""
+                else
+                    error "No file was selected."
+                fi
             fi
         fi
 
