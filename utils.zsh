@@ -175,6 +175,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         "2- Compress PDF (lossless)" \
         "3- List embedded fonts" \
         "4- List number of pages" \
+        "5- Check if protected" \
         "↵ Go back" \
     )
 
@@ -338,6 +339,31 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             echo "The number of pages is ${YELLOW}$pages${NOCOLOR}\n"
         else
             error "No file was selected."
+        fi
+
+    #
+    # Check if protected
+    #
+    elif [[ "$action" == *"Check if protected"* ]] ; then
+        if [[ $(which gs | grep "not found" ) ]] ; then
+            installApp "Ghostscript" "https://www.ghostscript.com"
+        else
+            local file=$(getFile "PDF" ".pdf")
+
+            if [[ $file ]] ; then
+                echo ""
+                local output=$(gs -dBATCH -sNODISPLAY "$file" 2>&1 | grep -o "This file requires a password")
+
+                local protection="protected"
+                if [[ ! $output ]] ;
+                then
+                    protection="un$protection"
+                fi
+
+                echo "The file is ${YELLOW}$protection${NOCOLOR}\n"
+            else
+                error "No file was selected."
+            fi
         fi
 
     fi
