@@ -243,17 +243,17 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         if [[ $(which convert | grep "not found" ) ]] ; then
             installApp "ImageMagick" "https://github.com/ImageMagick/ImageMagick"
         else
-            gum format -- "What file?"
-            local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
-            mkdir -p pdf-images
+            local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
                 echo ""
                 local filename=$(basename "$file" .pdf)
+                mkdir -p pdf-images
+
                 convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
                 echo "images are in the pdf-images folder"
             else
-                error "No file was entered."
+                error "No file was selected."
             fi
         fi
 
@@ -264,15 +264,14 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         if [[ $(which gs | grep "not found" ) ]] ; then
             installApp "Ghostscript" "https://www.ghostscript.com"
         else
-            gum format -- "What file?"
-            local file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
+            local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
                 echo ""
                 local filename=$(basename "$file" .pdf)
                 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
             else
-                error "No file was entered."
+                error "No file was selected."
             fi
         fi
 
