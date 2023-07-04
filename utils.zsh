@@ -164,35 +164,32 @@ if [[ "$tooling" == *"GitHub"* ]] ; then
     action=$(gum choose \
         "1- Get user information" \
     )
-fi
 
-# PDF Actions Submenu
-if [[ "$tooling" == *"PDF"* ]] ; then
-    gum format -- "What do you to do with the PDF?"
+# HTTP Actions Submenu
+elif [[ "$tooling" == *"HTTP"* ]] ; then
+    gum format -- "What do you to do with HTTP?"
     action=$(gum choose \
-        "1- Convert pages to images" \
+        "1- Find if website is DDoS protected" \
     )
-fi
 
 # Kubernetes Actions Submenu
-if [[ "$tooling" == *"Kubernetes"* ]] ; then
+elif [[ "$tooling" == *"Kubernetes"* ]] ; then
     gum format -- "What do you to do with Kubernetes?"
     action=$(gum choose \
         "1- Get ports fowarded" \
     )
-fi
 
-# HTTP Actions Submenu
-if [[ "$tooling" == *"HTTP"* ]] ; then
-    gum format -- "What do you to do with HTTP?"
+# PDF Actions Submenu
+elif [[ "$tooling" == *"PDF"* ]] ; then
+    gum format -- "What do you to do with the PDF?"
     action=$(gum choose \
         "1- Convert pages to images" \
         "2- Compress PDF (lossless)" \
     )
-fi
+
 
 # YouTube Actions Submenu
-if [[ "$tooling" == *"YouTube"* ]] ; then
+elif [[ "$tooling" == *"YouTube"* ]] ; then
     gum format -- "What do you to do with YouTube?"
     action=$(gum choose \
         "1- Download a video thumbnail" \
