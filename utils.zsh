@@ -130,8 +130,9 @@ tooling=$(gum choose \
     "3- HTTP" \
     "4- Kubernetes" \
     "5- PDF" \
-    "6- YouTube" \
-    "7- EXIT" \
+    "6- WAV" \
+    "7- YouTube" \
+    "8- EXIT" \
 )
 clearLastLine
 
@@ -184,6 +185,13 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         "↵ Go back" \
     )
 
+# WAV Actions Submenu
+elif [[ "$tooling" == *"WAV"* ]] ; then
+    gum format -- "What do you to do with the WAV file?"
+    action=$(gum choose \
+        "1- Convert to MP3" \
+        "↵ Go back" \
+    )
 
 # YouTube Actions Submenu
 elif [[ "$tooling" == *"YouTube"* ]] ; then
@@ -500,6 +508,26 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         fi
 
     fi
+
+#
+# WAV: Convert to MP3
+#
+elif [[ "$tooling" == *"WAV"* && "$action" == *"Convert to MP3"* ]] ; then
+
+    if [[ $(which ffmpeg | grep "not found" ) ]] ; then
+        installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
+    else
+        local file=$(getFile "WAV" ".wav")
+
+        if [[ $file ]] ; then
+            echo ""
+            ffmpeg -i "$file" -acodec libmp3lame "${file/%wav/mp3}";
+            echo ""
+        else
+            error "No file was selected."
+        fi
+    fi
+
 #
 # YouTube: download a video thumbnail
 #
@@ -513,8 +541,8 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     else
         error "No video URL was entered."
     fi
-fi
 
+fi
 done
 
 #
