@@ -14,9 +14,6 @@
 # Please use at your own risk
 #
 # Known issues:
-# - If no file with extension, gum choose return nothing
-# - No way to go back to previous menus
-# - App show let you run another command after you ran one
 # - If no cluster configuration available to kubectl, let the user know
 #
 ##################################################################
@@ -120,6 +117,8 @@ fi
 #
 gum style --foreground 212 --border-foreground 212 --border double --align center --width 100 --margin "1 2" --padding "2 4" 'k1-utils' 'With great power comes great responsibility, use carefully!'
 
+while [[ "$tooling" != *"EXIT"* ]] ; do
+
 #
 # Tooling menu
 #
@@ -140,6 +139,7 @@ if [[ "$tooling" == *"GitHub"* ]] ; then
     gum format -- "What do you to do with GitHub?"
     action=$(gum choose \
         "1- Get user information" \
+        "↵ Go back" \
     )
 
 # HTTP Actions Submenu
@@ -147,6 +147,7 @@ elif [[ "$tooling" == *"HTTP"* ]] ; then
     gum format -- "What do you to do with HTTP?"
     action=$(gum choose \
         "1- Find if website is DDoS protected" \
+        "↵ Go back" \
     )
 
 # Kubernetes Actions Submenu
@@ -154,6 +155,7 @@ elif [[ "$tooling" == *"Kubernetes"* ]] ; then
     gum format -- "What do you to do with Kubernetes?"
     action=$(gum choose \
         "1- Get ports fowarded" \
+        "↵ Go back" \
     )
 
 # PDF Actions Submenu
@@ -163,6 +165,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         "1- Convert pages to images" \
         "2- Compress PDF (lossless)" \
         "3- List embedded fonts" \
+        "↵ Go back" \
     )
 
 
@@ -171,6 +174,7 @@ elif [[ "$tooling" == *"YouTube"* ]] ; then
     gum format -- "What do you to do with YouTube?"
     action=$(gum choose \
         "1- Download a video thumbnail" \
+        "↵ Go back" \
     )
 fi
 
@@ -306,11 +310,13 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     else
         error "No video URL was entered."
     fi
+fi
+
+done
 
 #
 # Quitting
 #
-elif [[ "$tooling" == *"EXIT"* ]] ; then
     echo "\n"
     say "Goodbye my lover"
     say "Goodbye my friend"
@@ -318,5 +324,3 @@ elif [[ "$tooling" == *"EXIT"* ]] ; then
     say "You have been the one for me"
     echo "\n"
     exit
-
-fi
