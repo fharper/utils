@@ -205,6 +205,7 @@ local tooling=$(gum choose \
     "5- YouTube" \
     "6- EXIT" \
 )
+clearLastLine
 
 # GitHub Actions Submenu
 if [[ "$tooling" == *"GitHub"* ]] ; then
@@ -244,6 +245,8 @@ elif [[ "$tooling" == *"YouTube"* ]] ; then
         "1- Download a video thumbnail" \
     )
 fi
+
+clearLastLine
 
 ###########
 # Actions #
