@@ -54,6 +54,22 @@ then
     fi
 fi
 
+# Ghostscript
+# https://www.ghostscript.com
+if [[ -n $(which ghostscript >/dev/null) ]] ;
+then
+    echo "ghostscript is used to compress files like PDFs. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
+    read -r ANSWER
+
+    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+    then
+        tput sc && brew install ghostscript && tput rc && tput ed
+    else
+        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/charmbracelet/gum/."
+        exit
+    fi
+fi
+
 # Gum
 # https://github.com/charmbracelet/gum/
 if [[ -n $(which gum >/dev/null) ]] ;
@@ -170,7 +186,8 @@ fi
 if [[ "$tooling" == *"HTTP"* ]] ; then
     gum format -- "What do you to do with HTTP?"
     action=$(gum choose \
-        "1- Find if website is DDoS protected" \
+        "1- Convert pages to images" \
+        "2- Compress PDF (lossless)" \
     )
 fi
 
@@ -215,16 +232,29 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
 #
 # PDF: convert pages to images
 #
-elif [[ "$tooling" == *"PDF"* && "$action" == *"Convert pages to images"* ]] ; then
-    gum format -- "What file?"
-    local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
-    mkdir -p pdf-images
+elif [[ "$tooling" == *"PDF"* ]] ; then
 
-    echo ""
-    local filename=$(basename "$file" .pdf)
-    convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
-    echo "images are in the pdf-images folder"
+    if [[ "$action" == *"Convert pages to images"* ]] ; then
+        gum format -- "What file?"
+        local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
+        mkdir -p pdf-images
 
+        echo ""
+        local filename=$(basename "$file" .pdf)
+        convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
+        echo "images are in the pdf-images folder"
+
+    #
+    # PDF: Compress PDF (lossless)
+    #
+    elif [[ "$action" == *"Compress PDF (lossless)"* ]] ; then
+        gum format -- "What file?"
+        local file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
+        echo ""
+
+        local filename=$(basename "$file" .pdf)
+        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+    fi
 #
 # YouTube: download a video thumbnail
 #
