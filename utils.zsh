@@ -30,6 +30,8 @@ NOCOLOR="\033[0m"
 #############
 # Functions #
 #############
+
+# Echo something with style
 function say {
     gum style --foreground 93 "$1"
 }
@@ -227,10 +229,13 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
     curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
 
 #
-# PDF: convert pages to images
+# PDF
 #
 elif [[ "$tooling" == *"PDF"* ]] ; then
 
+    #
+    # Convert pages to images
+    #
     if [[ "$action" == *"Convert pages to images"* ]] ; then
         gum format -- "What file?"
         local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
@@ -242,7 +247,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         echo "images are in the pdf-images folder"
 
     #
-    # PDF: Compress PDF (lossless)
+    # Compress PDF (lossless)
     #
     elif [[ "$action" == *"Compress PDF (lossless)"* ]] ; then
         gum format -- "What file?"
