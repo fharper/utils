@@ -17,6 +17,7 @@
 # - If no file with extension, gum choose return nothing
 # - No way to go back to previous menus
 # - App show let you run another command after you ran one
+# - If no cluster configuration available to kubectl, let the user know
 #
 ##################################################################
 
