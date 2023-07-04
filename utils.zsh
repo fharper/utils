@@ -171,13 +171,14 @@ elif [[ "$tooling" == *"Kubernetes"* ]] ; then
 elif [[ "$tooling" == *"PDF"* ]] ; then
     gum format -- "What do you to do with the PDF?"
     action=$(gum choose \
-        "1- Check if protected" \
-        "2- Compress PDF (lossless)" \
-        "3- Convert pages to images" \
-        "4- Extract embedded images" \
-        "5- List embedded fonts" \
-        "6- List embedded images" \
-        "7- List number of pages" \
+        "1- Check if encrypted" \
+        "2- Check if protected" \
+        "3- Compress PDF (lossless)" \
+        "4- Convert pages to images" \
+        "5- Extract embedded images" \
+        "6- List embedded fonts" \
+        "7- List embedded images" \
+        "8- List number of pages" \
         "↵ Go back" \
     )
 
@@ -404,6 +405,46 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 pdfimages -all "$file" -p pdf-image
                 echo "Extracted images:"
                 gum style --foreground "#FFFF00" "$(/bin/ls -1 pdf-image*)"
+                echo ""
+            else
+                error "No file was selected."
+            fi
+        fi
+
+    #
+    # Check if encrypted
+    #
+    elif [[ "$action" == *"Check if encrypted"* ]] ; then
+
+        if [[ $(which pdfinfo | grep "not found" ) ]] ; then
+            installApp "Poppler" "https://poppler.freedesktop.org"
+        else
+            local file=$(getFile "PDF" ".pdf")
+
+            if [[ $file ]] ; then
+                echo ""
+                local output=$(pdfinfo "$file" | grep Encrypted | grep yes)
+
+                if [[ $output ]] ; then
+                    local algorithm=$(echo $output | egrep -o 'algorithm:.*[^)]' | sed -n "s/algorithm:/$1/p")
+
+                    echo "The file is ${YELLOW}encrypted${NOCOLOR} with the ${YELLOW}$algorithm${NOCOLOR} algorithm:"
+
+                    local print=$(echo $output | egrep -o 'print:\S*' | sed -n "s/print:/$1/p")
+                    echo "Printing: ${YELLOW}$print${NOCOLOR}"
+
+                    local copy=$(echo $output | egrep -o 'copy:\S*' | sed -n "s/copy:/$1/p")
+                    echo "Copying: ${YELLOW}$copy${NOCOLOR}"
+
+                    local change=$(echo $output | egrep -o 'change:\S*' | sed -n "s/change:/$1/p")
+                    echo "Changing: ${YELLOW}$change${NOCOLOR}"
+
+                    local notes=$(echo $output | egrep -o 'addNotes:\S*' | sed -n "s/addNotes:/$1/p")
+                    echo "Add Notes: ${YELLOW}$notes${NOCOLOR}"
+                else
+                    echo "The file is ${YELLOW}not encrypted${NOCOLOR}"
+                fi
+
                 echo ""
             else
                 error "No file was selected."
