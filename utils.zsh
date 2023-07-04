@@ -97,7 +97,7 @@ function getFile {
 
 # Display error messages
 function error {
-    echo "${RED}$1"
+    echo "${RED}$1${NOCOLOR}"
 }
 
 ##################
