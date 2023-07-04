@@ -174,9 +174,10 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         "1- Check if protected" \
         "2- Compress PDF (lossless)" \
         "3- Convert pages to images" \
-        "4- List embedded fonts" \
-        "5- List embedded images" \
-        "6- List number of pages" \
+        "4- Extract embedded images" \
+        "5- List embedded fonts" \
+        "6- List embedded images" \
+        "7- List number of pages" \
         "↵ Go back" \
     )
 
@@ -382,6 +383,27 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             if [[ $file ]] ; then
                 echo ""
                 pdfimages -list "$file"
+                echo ""
+            else
+                error "No file was selected."
+            fi
+        fi
+
+    #
+    # Extract embedded images
+    #
+    elif [[ "$action" == *"Extract embedded images"* ]] ; then
+
+        if [[ $(which pdfimages | grep "not found" ) ]] ; then
+            installApp "Poppler" "https://poppler.freedesktop.org"
+        else
+            local file=$(getFile "PDF" ".pdf")
+
+            if [[ $file ]] ; then
+                echo ""
+                pdfimages -all "$file" -p pdf-image
+                echo "Extracted images:"
+                gum style --foreground "#FFFF00" "$(/bin/ls -1 pdf-image*)"
                 echo ""
             else
                 error "No file was selected."
