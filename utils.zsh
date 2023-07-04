@@ -14,7 +14,6 @@
 # Please use at your own risk
 #
 # Known issues:
-# - If no file selected, command run anyway
 # - If no file with extension, gum choose return nothing
 # - No way to go back to previous menus
 # - App show let you run another command after you ran one
@@ -88,6 +87,11 @@ function getFile {
     echo "$file"
 }
 
+# Display error messages
+function error {
+    echo "${RED}$1"
+}
+
 ##################
 # Gum Dependency #
 ##################
@@ -112,8 +116,8 @@ local action=""
 gum format -- "What tooling do you want to use utils for?"
 local tooling=$(gum choose \
     "1- GitHub" \
-    "2- Kubernetes" \
-    "3- HTTP" \
+    "2- HTTP" \
+    "3- Kubernetes" \
     "4- PDF" \
     "5- YouTube" \
     "6- EXIT" \
@@ -179,18 +183,13 @@ if [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; the
 
     gum format -- "Which username?"
     local username=$(gum input --placeholder "fharper")
+    clearLastLine
 
-    echo ""
-    curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq '.name, .email, .blog' | tr -d '"' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq '.[] .url' | tr -d '"'
-
-#
-# Kubernetes: get ports forwarded from a cluster
-#
-elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ; then
-    if [[ $(which kubectl | grep "not found" ) ]] ; then
-        installApp "kubectl" "https://github.com/kubernetes/kubectl"
+    if [[ $username ]] ; then
+        echo ""
+        curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq '.name, .email, .blog' | tr -d '"' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq '.[] .url' | tr -d '"'
     else
-        kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
+        error "No username was entered."
     fi
 
 #
@@ -203,8 +202,22 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
         gum format -- "Which site?"
         local site=$(gum input --placeholder "https://fred.dev")
 
-        echo ""
-        curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+        if [[ $site ]] ; then
+            echo ""
+            curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+        else
+            error "No site was entered."
+        fi
+    fi
+
+#
+# Kubernetes: get ports forwarded from a cluster
+#
+elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ; then
+    if [[ $(which kubectl | grep "not found" ) ]] ; then
+        installApp "kubectl" "https://github.com/kubernetes/kubectl"
+    else
+        kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
     fi
 
 #
@@ -223,10 +236,14 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
             mkdir -p pdf-images
 
-            echo ""
-            local filename=$(basename "$file" .pdf)
-            convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
-            echo "images are in the pdf-images folder"
+            if [[ $file ]] ; then
+                echo ""
+                local filename=$(basename "$file" .pdf)
+                convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
+                echo "images are in the pdf-images folder"
+            else
+                error "No file was entered."
+            fi
         fi
 
     #
@@ -238,10 +255,14 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         else
             gum format -- "What file?"
             local file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
-            echo ""
 
-            local filename=$(basename "$file" .pdf)
-            gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+            if [[ $file ]] ; then
+                echo ""
+                local filename=$(basename "$file" .pdf)
+                gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+            else
+                error "No file was entered."
+            fi
         fi
 
     #
@@ -253,9 +274,12 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             installApp "Poppler" "https://poppler.freedesktop.org"
         else
             local file=$(getFile "PDF" ".pdf")
-            echo "$file"
 
-            pdffonts "$file"
+            if [[ $file ]] ; then
+                pdffonts "$file"
+            else
+                error "No file was selected."
+            fi
         fi
 
     fi
@@ -266,8 +290,12 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     gum format -- "Which video?"
     local video=$(gum input --placeholder "https://www.youtube.com/watch?v=-8pX4ayi_XY")
 
-    id=$(echo "$video" | sed 's/.*v=//g')
-    curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
+    if [[ $video ]] ; then
+        id=$(echo "$video" | sed 's/.*v=//g')
+        curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
+    else
+        error "No video URL was entered."
+    fi
 
 #
 # Quitting
