@@ -88,7 +88,7 @@ function getFile {
         file=$(/bin/ls *"$2" | gum choose)
     else
         echo "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOCOLOR} manually" >&2
-        file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
+        file=$(gum input --placeholder "/Users/fharper/Downloads/your-file$2")
     fi
 
     clearLastLine
