@@ -171,11 +171,12 @@ elif [[ "$tooling" == *"Kubernetes"* ]] ; then
 elif [[ "$tooling" == *"PDF"* ]] ; then
     gum format -- "What do you to do with the PDF?"
     action=$(gum choose \
-        "1- Convert pages to images" \
+        "1- Check if protected" \
         "2- Compress PDF (lossless)" \
-        "3- List embedded fonts" \
-        "4- List number of pages" \
-        "5- Check if protected" \
+        "3- Convert pages to images" \
+        "4- List embedded fonts" \
+        "5- List embedded images" \
+        "6- List number of pages" \
         "↵ Go back" \
     )
 
@@ -322,6 +323,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
+                echo ""
                 pdffonts "$file"
             else
                 error "No file was selected."
@@ -335,6 +337,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         local file=$(getFile "PDF" ".pdf")
 
         if [[ $file ]] ; then
+            echo ""
             local pages=$(mdls -name kMDItemNumberOfPages -raw "$file")
             echo "The number of pages is ${YELLOW}$pages${NOCOLOR}\n"
         else
@@ -361,6 +364,25 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 fi
 
                 echo "The file is ${YELLOW}$protection${NOCOLOR}\n"
+            else
+                error "No file was selected."
+            fi
+        fi
+
+    #
+    # List embedded images
+    #
+    elif [[ "$action" == *"List embedded images"* ]] ; then
+
+        if [[ $(which pdfimages | grep "not found" ) ]] ; then
+            installApp "Poppler" "https://poppler.freedesktop.org"
+        else
+            local file=$(getFile "PDF" ".pdf")
+
+            if [[ $file ]] ; then
+                echo ""
+                pdfimages -list "$file"
+                echo ""
             else
                 error "No file was selected."
             fi
