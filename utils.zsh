@@ -82,8 +82,18 @@ function clearLastLine {
 # @param file type (Images, PDFs...)
 # @param file extension (.pdf, .png, .jpg)
 function getFile {
-    echo "Please select a ${YELLOW}$1${NOCOLOR}" >&2
-    local file=$(/bin/ls *"$2" | gum choose)
+    local files=$(/bin/ls *"$2")
+    clearLastLine #I cannot get the error output to silence!
+    local file;
+
+    if [[ $files ]] ; then
+        echo "Please select a ${YELLOW}$1${NOCOLOR}" >&2
+        file=$(/bin/ls *"$2" | gum choose)
+    else
+        echo "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOCOLOR} manually" >&2
+        file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
+    fi
+
     clearLastLine
     echo "$file"
 }
