@@ -125,17 +125,26 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 local action=""
 gum format -- "What tooling do you want to use utils for?"
 tooling=$(gum choose \
-    "1- GitHub" \
-    "2- HTTP" \
-    "3- Kubernetes" \
-    "4- PDF" \
-    "5- YouTube" \
-    "6- EXIT" \
+    "1- Any File" \
+    "2- GitHub" \
+    "3- HTTP" \
+    "4- Kubernetes" \
+    "5- PDF" \
+    "6- YouTube" \
+    "7- EXIT" \
 )
 clearLastLine
 
+# Any Files Submenu
+if [[ "$tooling" == *"Any File"* ]] ; then
+    gum format -- "What do you to do with the file?"
+    action=$(gum choose \
+        "1- Get mime type" \
+        "↵ Go back" \
+    )
+
 # GitHub Actions Submenu
-if [[ "$tooling" == *"GitHub"* ]] ; then
+elif [[ "$tooling" == *"GitHub"* ]] ; then
     gum format -- "What do you to do with GitHub?"
     action=$(gum choose \
         "1- Get user information" \
@@ -190,9 +199,22 @@ clearLastLine
 ###########
 
 #
+# Any file: Get mime type
+#
+if [[ "$tooling" == *"Any File"* && "$action" == *"Get mime type"* ]] ; then
+    local file=$(getFile "file" "")
+
+    if [[ $file ]] ; then
+        local type=$(file --mime-type -b "$file")
+        echo "The mime type is ${YELLOW}$type${NOCOLOR}\n"
+    else
+        error "No file was selected."
+    fi
+
+#
 # GitHub: get information about an user
 #
-if [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; then
+elif [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; then
     if [[ $(which curl | grep "not found" ) ]] ; then
         installApp "curl" "https://github.com/curl/curl"
     fi
