@@ -36,6 +36,52 @@ function say {
     gum style --foreground 93 "$1"
 }
 
+# Install missing dependency
+function installApp {
+    local application="$1"
+    local website="$2"
+
+    if [[ $(which brew | grep "not found") ]] ;
+    then
+        read -p 'Homebrew need to be installed: install it? [Y/n]: ' ANSWER
+
+        if [[ ! "$ANSWER" || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
+        then
+            curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+        else
+            echo "Please install ${YELLOW}Homebrew${NOCOLOR} or ${YELLOW}$application${NOCOLOR} manually (see $website for instructions) and run the script again."
+            exit
+        fi
+    fi
+
+    local confirmation=$(gum confirm "$application needs to be installed to run this command. Do you want to install it?" && echo "true" || echo "false")
+    if [[ "$confirmation" == "true" ]] ; then
+        tput sc
+        brew install "$application"
+        tput rc
+        tput ed
+    else
+        echo "$application not installed. Install it manually (see $website for instructions) and run the script again."
+        exit
+    fi
+}
+
+#Clear last terminal line
+function clearLastLine {
+    tput cuu 1 >&2
+    tput el >&2
+}
+
+# Select a file from the running directory
+# @param file type (Images, PDFs...)
+# @param file extension (.pdf, .png, .jpg)
+function getFile {
+    echo "Please select a ${YELLOW}$1${NOCOLOR}" >&2
+    local file=$(/bin/ls *"$2" | gum choose)
+    clearLastLine
+    echo "$file"
+}
+
 ################
 # Dependencies #
 ################
@@ -187,6 +233,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
     action=$(gum choose \
         "1- Convert pages to images" \
         "2- Compress PDF (lossless)" \
+        "3- List embedded fonts" \
     )
 
 
@@ -256,6 +303,21 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
 
         local filename=$(basename "$file" .pdf)
         gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+
+    #
+    # List embedded fonts
+    #
+    elif [[ "$action" == *"List embedded fonts"* ]] ; then
+
+        if [[ $(which pdffonts | grep "not found" ) ]] ; then
+            installApp "Poppler" "https://poppler.freedesktop.org"
+        else
+            local file=$(getFile "PDF" ".pdf")
+            echo "$file"
+
+            pdffonts "$file"
+        fi
+
     fi
 #
 # YouTube: download a video thumbnail
