@@ -165,6 +165,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         "1- Convert pages to images" \
         "2- Compress PDF (lossless)" \
         "3- List embedded fonts" \
+        "4- List number of pages" \
         "↵ Go back" \
     )
 
@@ -302,6 +303,19 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             else
                 error "No file was selected."
             fi
+        fi
+
+    #
+    # List number of page
+    #
+    elif [[ "$action" == *"List number of pages"* ]] ; then
+        local file=$(getFile "PDF" ".pdf")
+
+        if [[ $file ]] ; then
+            local pages=$(mdls -name kMDItemNumberOfPages -raw "$file")
+            echo "The number of pages is ${YELLOW}$pages${NOCOLOR}\n"
+        else
+            error "No file was selected."
         fi
 
     fi
