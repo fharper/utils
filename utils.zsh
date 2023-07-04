@@ -13,6 +13,12 @@
 #
 # Please use at your own risk
 #
+# Known issues:
+# - If no file selected, command run anyway
+# - If no file with extension, gum choose return nothing
+# - No way to go back to previous menus
+# - App show let you run another command after you ran one
+#
 ##################################################################
 
 ##################
