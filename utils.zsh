@@ -82,106 +82,13 @@ function getFile {
     echo "$file"
 }
 
-################
-# Dependencies #
-################
+##################
+# Gum Dependency #
+##################
 
-# Curl
-# https://github.com/curl/curl
-if [[ -n $(which curl >/dev/null) ]] ;
-then
-    echo "curl is used to retrieve information from URLs. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install curl && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/curl/curl."
-        exit
-    fi
+if [[ $(which gum | grep "not found" ) ]] ; then
+    installApp "gum" "https://github.com/charmbracelet/gum/"
 fi
-
-# Ghostscript
-# https://www.ghostscript.com
-if [[ -n $(which ghostscript >/dev/null) ]] ;
-then
-    echo "ghostscript is used to compress files like PDFs. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install ghostscript && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/charmbracelet/gum/."
-        exit
-    fi
-fi
-
-# Gum
-# https://github.com/charmbracelet/gum/
-if [[ -n $(which gum >/dev/null) ]] ;
-then
-    echo "gum is used to give a better experience. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install gum && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/charmbracelet/gum/."
-        exit
-    fi
-fi
-
-# ImageMagick
-# https://github.com/ImageMagick/ImageMagick
-if [[ -n $(which convert >/dev/null) ]] ;
-then
-    echo "ImageMagick is used to do diverse actions on images and PDFs. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install imagemagick && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/ImageMagick/ImageMagick."
-        exit
-    fi
-fi
-
-# jq
-# https://github.com/jqlang/jq
-if [[ -n $(which jq >/dev/null) ]] ;
-then
-    echo "jq is used to parse JSON. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install jq && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/jqlang/jq."
-        exit
-    fi
-fi
-
-# kubectl
-# https://github.com/charmbracelet/gum/
-if [[ -n $(which kubectl >/dev/null) ]] ;
-then
-    echo "kubectl is used for the Kubernetes utilities. Would you like to ${YELLOW}install it using Homebrew${NOCOLOR}? [Y/n] "
-    read -r ANSWER
-
-    if [[ ! $ANSWER || "$ANSWER" == "Y" || "$ANSWER" == "y" ]] ;
-    then
-        tput sc && brew install kubectl && tput rc && tput ed
-    else
-        echo "This script ${YELLOW}cannot work${NOCOLOR} without this utility. Find alternative ways to install it at https://github.com/kubernetes/kubectl."
-        exit
-    fi
-fi
-
 
 #########
 # Menus #
@@ -256,6 +163,14 @@ clearLastLine
 # GitHub: get information about an user
 #
 if [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; then
+    if [[ $(which curl | grep "not found" ) ]] ; then
+        installApp "curl" "https://github.com/curl/curl"
+    fi
+
+    if [[ $(which jq | grep "not found" ) ]] ; then
+            installApp "jq" "https://github.com/jqlang/jq"
+    fi
+
     gum format -- "Which username?"
     local username=$(gum input --placeholder "fharper")
 
@@ -266,17 +181,25 @@ if [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; the
 # Kubernetes: get ports forwarded from a cluster
 #
 elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ; then
-    kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
+    if [[ $(which kubectl | grep "not found" ) ]] ; then
+        installApp "kubectl" "https://github.com/kubernetes/kubectl"
+    else
+        kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
+    fi
 
 #
 # HTTP: find if website is DDoS protected
 #
 elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protected"* ]] ; then
-    gum format -- "Which site?"
-    local site=$(gum input --placeholder "https://fred.dev")
+    if [[ $(which curl | grep "not found" ) ]] ; then
+        installApp "curl" "https://github.com/curl/curl"
+    else
+        gum format -- "Which site?"
+        local site=$(gum input --placeholder "https://fred.dev")
 
-    echo ""
-    curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+        echo ""
+        curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+    fi
 
 #
 # PDF
@@ -287,25 +210,33 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
     # Convert pages to images
     #
     if [[ "$action" == *"Convert pages to images"* ]] ; then
-        gum format -- "What file?"
-        local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
-        mkdir -p pdf-images
+        if [[ $(which convert | grep "not found" ) ]] ; then
+            installApp "ImageMagick" "https://github.com/ImageMagick/ImageMagick"
+        else
+            gum format -- "What file?"
+            local file=$(gum input --placeholder "/Users/fharper/Downloads/be like batman.pdf")
+            mkdir -p pdf-images
 
-        echo ""
-        local filename=$(basename "$file" .pdf)
-        convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
-        echo "images are in the pdf-images folder"
+            echo ""
+            local filename=$(basename "$file" .pdf)
+            convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
+            echo "images are in the pdf-images folder"
+        fi
 
     #
     # Compress PDF (lossless)
     #
     elif [[ "$action" == *"Compress PDF (lossless)"* ]] ; then
-        gum format -- "What file?"
-        local file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
-        echo ""
+        if [[ $(which gs | grep "not found" ) ]] ; then
+            installApp "Ghostscript" "https://www.ghostscript.com"
+        else
+            gum format -- "What file?"
+            local file=$(gum input --placeholder "/Users/fharper/Downloads/be-like-batman.pdf")
+            echo ""
 
-        local filename=$(basename "$file" .pdf)
-        gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+            local filename=$(basename "$file" .pdf)
+            gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+        fi
 
     #
     # List embedded fonts
