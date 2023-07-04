@@ -236,7 +236,11 @@ elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ;
     if [[ $(which kubectl | grep "not found" ) ]] ; then
         installApp "kubectl" "https://github.com/kubernetes/kubectl"
     else
-        kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"'
+        local result=$(kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"')
+
+        if [[ ! "$result" ]] ; then
+            error "No ports are forwarded.\n"
+        fi
     fi
 
 #
