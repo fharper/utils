@@ -124,7 +124,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 #
 local action=""
 gum format -- "What tooling do you want to use utils for?"
-local tooling=$(gum choose \
+tooling=$(gum choose \
     "1- GitHub" \
     "2- HTTP" \
     "3- Kubernetes" \
@@ -176,6 +176,10 @@ elif [[ "$tooling" == *"YouTube"* ]] ; then
         "1- Download a video thumbnail" \
         "↵ Go back" \
     )
+
+# If empty, Ctrl + C was selected (for whatever I cannot trap SIGINT)
+else
+    tooling="EXIT"
 fi
 
 clearLastLine
