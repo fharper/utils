@@ -1,28 +1,19 @@
 #!/bin/zsh
 
-##################################################################
+################################################################################
 #
-# ZSH script with a bunch of utilities I created
+# ZSH script with a bunch of command line utilities
 #
-# (mostly making it easier to find how to do something with different CLI)
+# Making it easier to remind some difficult or commands I don't use often or
+# easily do someting with multiple steps. Please use at your own risk!
 #
-# Dependency:
-#  - gum https://github.com/charmbracelet/gum/
-#
-# Will add my utils little by little
-#
-# Please use at your own risk
-#
-# Known issues:
-# - If no cluster configuration available to kubectl, let the user know
-# - Add utils to compress videos --- ffmpeg -i "$f" -c:v libx264 -crf 18 -preset veryslow -c:a copy "${f/%.backup.mp4/.mp4}"
-#
-##################################################################
+################################################################################
 
 ##################
 # Configurations #
 ##################
-shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/" # More info at https://github.com/short-pixel-optimizer/shortpixel-php
+# https://github.com/short-pixel-optimizer/shortpixel-php
+shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/"
 
 #############
 # Constants #
