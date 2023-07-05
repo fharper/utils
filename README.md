@@ -1,5 +1,4 @@
 # Utils
 
-A script with different utilities, which is mostly a way for me to do things in the terminal easily.
+It started as a repository for a bunch of bash and Zsh scripts, but it ended up being [utils.zsh](utils.zsh) only, in which I merged all command line utilities. It's now one big super duper utility script.
 
-It started as a repository for a bunch of bash or Zsh scripts (most of them not committed yet), but ended up being only [utils.zsh](utils.zsh) in which I slowly merge them all in one big super duper utilities script.
