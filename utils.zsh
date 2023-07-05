@@ -15,6 +15,9 @@
 #
 # Known issues:
 # - If no cluster configuration available to kubectl, let the user know
+# - Add utils to compress videos --- ffmpeg -i "$f" -c:v libx264 -crf 18 -preset veryslow -c:a copy "${f/%.backup.mp4/.mp4}"
+# - Add utils to download latest macOS --- curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g'
+# - Add utils to check video quality between two videos (see end of script)
 #
 ##################################################################
 
@@ -801,3 +804,10 @@ done
     say "You have been the one for me"
     print "\n"
     exit
+
+#
+# file1=$1
+# file2=$2
+# resolution=`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$file1"`
+# resolutions=(${resolution//x/ })
+# ffmpeg -r 24 -i "$file1" -r 24 -i "$file2" -lavfi "[0:v]setpts=PTS-STARTPTS[reference]; [1:v]scale="${resolutions[0]}":"${resolutions[1]}":flags=bicubic,setpts=PTS-STARTPTS[distorted]; [distorted][reference]libvmaf=log_fmt=xml:log_path=/dev/stdout:model_path=/usr/local/share/model/vmaf_v0.6.1.pkl" -f null -
