@@ -601,145 +601,179 @@ elif [[ "$tooling" == *"WAV"* && "$action" == *"Convert to MP3"* ]] ; then
 # System: Get information
 #
 elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
-    local info=("OS" "Browsers" "Displays" "Terminal" "SDKs" "Docker")
+    if [[ $(which jq | grep "not found" ) ]] ; then
+            installApp "jq" "https://github.com/jqlang/jq"
+    else
 
-    local command="gum choose"
+        local info=("OS" "Browsers" "Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs")
 
-    #Listing the choices
-    for what in "$info[@]"; do
-        command="$command \"$what\""
-    done
+        local command="gum choose"
 
-    command="$command --no-limit"
+        #Listing the choices
+        for what in "$info[@]"; do
+            command="$command \"$what\""
+        done
 
-    #Selecting all the choices
-    for what in "$info[@]"; do
-        command="$command --selected=\"$what\""
-    done
+        command="$command --no-limit"
 
-    gum format -- "What information about your system do you need?"
-    local selectedInfo=("${(@f)$(eval $command)}")
-    clearLastLine
+        #Selecting all the choices
+        for what in "$info[@]"; do
+            command="$command --selected=\"$what\""
+        done
 
-    print "\nLoading the system information, please wait..."
-    local data=""
+        gum format -- "What information about your system do you need?"
+        local selectedInfo=("${(@f)$(eval $command)}")
+        clearLastLine
 
-    #Operating System
-    if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
-        data="${data}${YELLOW}Operating System\n"
-        data="${data}________________${NOCOLOR}\n"
-        data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
-    fi
+        print "\nLoading the system information, please wait..."
+        local data=""
 
-    #Browsers
-    if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
-        data="${data}${YELLOW}Browsers\n"
-        data="${data}________${NOCOLOR}\n"
-
-        if [[ -d "/Applications/Brave Browser.app" ]] ; then
-            data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
+        #Operating System
+        if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Operating System\n"
+            data="${data}________________${NOCOLOR}\n"
+            data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
         fi
 
-        if [[ -d "/Applications/Chromium.app" ]] ; then
-            data="${data}$(/Applications/Chromium.app/Contents/MacOS/Chromium --version | xargs)\n"
+        #Browsers
+        if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Browsers\n"
+            data="${data}________${NOCOLOR}\n"
+
+            if [[ -d "/Applications/Brave Browser.app" ]] ; then
+                data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
+            fi
+
+            if [[ -d "/Applications/Chromium.app" ]] ; then
+                data="${data}$(/Applications/Chromium.app/Contents/MacOS/Chromium --version | xargs)\n"
+            fi
+
+            if [[ -d "/Applications/Firefox.app" ]] ; then
+                data="${data}$(/Applications/Firefox.app/Contents/MacOS/Firefox --version | xargs)\n"
+            fi
+
+            if [[ -d "/Applications/Google Chrome.app" ]] ; then
+                data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | xargs)\n"
+            fi
+
+            if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
+                data="${data}$(/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version | xargs)\n"
+            fi
+
+            data="${data}\n"
         fi
 
-        if [[ -d "/Applications/Firefox.app" ]] ; then
-            data="${data}$(/Applications/Firefox.app/Contents/MacOS/Firefox --version | xargs)\n"
+        #Display(s)
+        if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Displays\n"
+            data="${data}________${NOCOLOR}\n"
+            resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
+            data="${data}${resolutions:gs/          /}\n\n"
         fi
 
-        if [[ -d "/Applications/Google Chrome.app" ]] ; then
-            data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | xargs)\n"
+        #Terminal
+        if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Terminal\n"
+            data="${data}________${NOCOLOR}\n"
+
+            if [[ -d "/Applications/iTerm.app" ]] ; then
+                data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
+            fi
+
+            data="${data}$(zsh --version)\n"
+            source $ZSH/oh-my-zsh.sh
+            data="${data}OMZ (Oh My Zsh): $(omz version)\n\n"
         fi
 
-        if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
-            data="${data}$(/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version | xargs)\n"
+        #SDKs
+        if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}SDKS\n"
+            data="${data}_________________${NOCOLOR}\n"
+
+            #Deno
+            data="${data}Deno $(deno --version | head -n 1 | sed -E 's/deno (.*) \(.*/\1/g')\n\n"
+
+            #Go
+            data="${data}Go $(go version | sed -E 's/go version go(.*) .*/\1/g')\n\n"
+
+            #Java
+            data="${data}Java $(java -version 2>&1 | head -n 1 | sed -E 's/openjdk version \"(.*)\".*/\1/g')\n\n"
+
+            #Node.js
+            node_version=$(node --version)
+            node_version_length=${#node_version}
+            data="${data}Node.js ${node_version[2,node_version_length]}\n"
+            data="${data}npm $(npm --version)\n\n"
+
+            #Perl
+            data="${data}Perl $(perl --version | sed '2!d' | sed -E 's/.*\(v(.*)\).*/\1/g')\n\n"
+
+            #PHP
+            data="${data}$(php --version | head -n 1 | sed -E 's/ \(cli\).*//g')\n"
+            data="${data}Composer$(composer --version | sed -E 's/Composer version (.*) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{1,}/\1/g')\n\n"
+
+            #Python
+            data="${data}$(python --version)\n"
+            pip_version=$(pip --version)
+            pip_version_to= stringIndex $pip_version from
+            data="${data}${pip_version[1,10]}\n\n"
+
+            #Ruby
+            data="${data}Ruby$(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
+            data="${data}gem $(gem --version| sed -E 's/gem/Gem/g')\n\n"
+
+            #Rust
+            data="${data}Rust $(rustc --version | sed -E 's/rustc (.*) \(.*/\1/g')\n"
+            data="${data}Cargo $(cargo --version | sed -E 's/cargo (.*) \(.*/\1/g')\n\n"
         fi
 
-        data="${data}\n"
-    fi
+        #Docker
+        if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Docker\n"
+            data="${data}_________________${NOCOLOR}\n"
 
-    #Display(s)
-    if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
-        data="${data}${YELLOW}Displays\n"
-        data="${data}________${NOCOLOR}\n"
-        resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
-        data="${data}${resolutions:gs/          /}\n\n"
-    fi
-
-    #Terminal
-    if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
-        data="${data}${YELLOW}Terminal\n"
-        data="${data}________${NOCOLOR}\n"
-
-        if [[ -d "/Applications/iTerm.app" ]] ; then
-            data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
+            if [[ $(docker version 2>&1 | grep "Cannot connect to the Docker daemon") ]] ; then
+                data="${data}Docker Desktop isn't running: start the app to get this information.\n\n"
+            else
+                data="${data}$(docker version | grep "Docker Desktop" | sed -E 's/Server: //g')\n\n"
+            fi
         fi
 
-        data="${data}$(zsh --version)\n"
-        source $ZSH/oh-my-zsh.sh
-        data="${data}OMZ (Oh My Zsh): $(omz version)\n\n"
+        #Clouds CLIs
+        if [[ ${selectedInfo[(ie)Clouds CLIs]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Clouds CLIs\n"
+            data="${data}_________________${NOCOLOR}\n"
+
+            #AWS
+            data="${data}AWS $(aws --version | sed -E 's/aws-cli\/(.*) Python.*/\1/g')\n"
+
+            #Azure
+            data="${data}Azure $(az version | jq '."azure-cli"' | sed -E 's/"//g')\n"
+
+            #Civo
+            data="${data}$(civo --version | grep "Civo CLI" | sed -E 's/CLI v//g')\n"
+
+            #DigitalOcean
+            data="${data}DigitalOcean $(doctl version | sed -E 's/doctl version (.*)-release/\1/g')\n"
+
+            #Google
+            data="${data}$(gcloud --version | head -n 1 | sed -E 's/ SDK//g')\n"
+
+            #Vultr
+            data="${data}$(vultr-cli version | sed -E 's/-cli v/ /g')"
+        fi
+
+        # Display the system information
+        clearLastLine
+        print "\n$data\n"
+
+        #Removing formating
+        data=${data//${YELLOW}/}
+        data=${data//${NOCOLOR}/}
+
+        # Copy it to clipboard
+        print "$data" | pbcopy
     fi
-
-    #SDKs
-    if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
-        data="${data}${YELLOW}SDKS\n"
-        data="${data}_________________${NOCOLOR}\n"
-
-        #Deno
-        data="${data}Deno $(deno --version | head -n 1 | sed -E 's/deno (.*) \(.*/\1/g')\n\n"
-
-        #Go
-        data="${data}Go $(go version | sed -E 's/go version go(.*) .*/\1/g')\n\n"
-
-        #Java
-        data="${data}Java $(java -version 2>&1 | head -n 1 | sed -E 's/openjdk version \"(.*)\".*/\1/g')\n\n"
-
-        #Node.js
-        node_version=$(node --version)
-        node_version_length=${#node_version}
-        data="${data}Node.js ${node_version[2,node_version_length]}\n"
-        data="${data}npm $(npm --version)\n\n"
-
-        #Perl
-        data="${data}Perl $(perl --version | sed '2!d' | sed -E 's/.*\(v(.*)\).*/\1/g')\n\n"
-
-        #PHP
-        data="${data}$(php --version | head -n 1 | sed -E 's/ \(cli\).*//g')\n"
-        data="${data}Composer$(composer --version | sed -E 's/Composer version (.*) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{1,}/\1/g')\n\n"
-
-        #Python
-        data="${data}$(python --version)\n"
-        pip_version=$(pip --version)
-        pip_version_to= stringIndex $pip_version from
-        data="${data}${pip_version[1,10]}\n\n"
-
-        #Ruby
-        data="${data}Ruby$(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
-        data="${data}gem $(gem --version| sed -E 's/gem/Gem/g')\n\n"
-
-        #Rust
-        data="${data}Rust $(rustc --version | sed -E 's/rustc (.*) \(.*/\1/g')\n"
-        data="${data}Cargo $(cargo --version | sed -E 's/cargo (.*) \(.*/\1/g')\n\n"
-    fi
-
-    #Docker
-    if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
-        data="${data}${YELLOW}Docker\n"
-        data="${data}_________________${NOCOLOR}\n"
-        data="${data}$(docker version | grep "Docker Desktop" | sed -E 's/Server: //g')"
-    fi
-
-    # Display the system information
-    clearLastLine
-    print "\n$data\n"
-
-    #Removing formating
-    data=${data//${YELLOW}/}
-    data=${data//${NOCOLOR}/}
-
-    # Copy it to clipboard
-    print "$data" | pbcopy
 
 #
 # YouTube: download a video thumbnail
