@@ -621,94 +621,126 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
     local selectedInfo=("${(@f)$(eval $command)}")
     clearLastLine
 
+    print "\nLoading the system information, please wait..."
+    local data=""
+
     #Operating System
     if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
-        print
-        print "${YELLOW}Operating System"
-        print "________________${NOCOLOR}"
-        print $(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)
+        data="${data}${YELLOW}Operating System\n"
+        data="${data}________________${NOCOLOR}\n"
+        data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
     fi
 
     #Browsers
     if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
-        print
-        print "${YELLOW}Browsers"
-        print "________${NOCOLOR}"
+        data="${data}${YELLOW}Browsers\n"
+        data="${data}________${NOCOLOR}\n"
 
         if [[ -d "/Applications/Brave Browser.app" ]] ; then
-            /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version
+            data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
         fi
 
         if [[ -d "/Applications/Chromium.app" ]] ; then
-         /Applications/Chromium.app/Contents/MacOS/Chromium --version
+            data="${data}$(/Applications/Chromium.app/Contents/MacOS/Chromium --version | xargs)\n"
         fi
 
         if [[ -d "/Applications/Firefox.app" ]] ; then
-            /Applications/Firefox.app/Contents/MacOS/Firefox --version
+            data="${data}$(/Applications/Firefox.app/Contents/MacOS/Firefox --version | xargs)\n"
         fi
 
         if [[ -d "/Applications/Google Chrome.app" ]] ; then
-            /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
+            data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | xargs)\n"
         fi
 
         if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
-            /Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version
+            data="${data}$(/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version | xargs)\n"
         fi
+
+        data="${data}\n"
     fi
 
     #Display(s)
     if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
-        print
-        print "${YELLOW}Displays"
-        print "________${NOCOLOR}${NOCOLOR}"
+        data="${data}${YELLOW}Displays\n"
+        data="${data}________${NOCOLOR}\n"
         resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
-        print ${resolutions:gs/          /}
+        data="${data}${resolutions:gs/          /}\n\n"
     fi
 
     #Terminal
     if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
-        print
-        print "${YELLOW}Terminal"
-        print "________${NOCOLOR}"
+        data="${data}${YELLOW}Terminal\n"
+        data="${data}________${NOCOLOR}\n"
 
         if [[ -d "/Applications/iTerm.app" ]] ; then
-            print "iTerm2 " $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)
+            data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
         fi
 
-        zsh --version
+        data="${data}$(zsh --version)\n"
         source $ZSH/oh-my-zsh.sh
-        print "OMZ (Oh My Zsh):" $(omz version)
+        data="${data}OMZ (Oh My Zsh): $(omz version)\n\n"
     fi
 
     #SDKs
     if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
-        print
-        print "${YELLOW}SDKS"
-        print "_________________${NOCOLOR}"
-        python -V
-        pip_version=$(pip -V)
-        pip_version_to= stringIndex $pip_version from
-        print ${pip_version[1,10]}
+        data="${data}${YELLOW}SDKS\n"
+        data="${data}_________________${NOCOLOR}\n"
 
-        print
-        node_version=$(node -v)
+        #Deno
+        data="${data}Deno $(deno --version | head -n 1 | sed -E 's/deno (.*) \(.*/\1/g')\n\n"
+
+        #Go
+        data="${data}Go $(go version | sed -E 's/go version go(.*) .*/\1/g')\n\n"
+
+        #Java
+        data="${data}Java $(java -version 2>&1 | head -n 1 | sed -E 's/openjdk version \"(.*)\".*/\1/g')\n\n"
+
+        #Node.js
+        node_version=$(node --version)
         node_version_length=${#node_version}
-        print Node.js ${node_version[2,node_version_length]}
-        print npm $(npm -v)
+        data="${data}Node.js ${node_version[2,node_version_length]}\n"
+        data="${data}npm $(npm --version)\n\n"
 
-        print
-        java -version
+        #Perl
+        data="${data}Perl $(perl --version | sed '2!d' | sed -E 's/.*\(v(.*)\).*/\1/g')\n\n"
+
+        #PHP
+        data="${data}$(php --version | head -n 1 | sed -E 's/ \(cli\).*//g')\n"
+        data="${data}Composer$(composer --version | sed -E 's/Composer version (.*) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{1,}/\1/g')\n\n"
+
+        #Python
+        data="${data}$(python --version)\n"
+        pip_version=$(pip --version)
+        pip_version_to= stringIndex $pip_version from
+        data="${data}${pip_version[1,10]}\n\n"
+
+        #Ruby
+        data="${data}Ruby$(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
+        data="${data}gem $(gem --version| sed -E 's/gem/Gem/g')\n\n"
+
+        #Rust
+        data="${data}Rust $(rustc --version | sed -E 's/rustc (.*) \(.*/\1/g')\n"
+        data="${data}Cargo $(cargo --version | sed -E 's/cargo (.*) \(.*/\1/g')\n\n"
     fi
 
     #Docker
     if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
-        print
-        print "${YELLOW}Docker"
-        print "_________________${NOCOLOR}"
-        docker version
+        data="${data}${YELLOW}Docker\n"
+        data="${data}_________________${NOCOLOR}\n"
+        data="${data}$(docker version | grep "Docker Desktop" | sed -E 's/Server: //g')"
     fi
 
-    print
+    # Display the system information
+    clearLastLine
+    print "\n$data\n"
+
+    #Removing formating
+    data=${data//${YELLOW}/}
+    data=${data//${NOCOLOR}/}
+
+    # Copy it to clipboard
+    print "$data" | pbcopy
+
 #
 # YouTube: download a video thumbnail
 #
