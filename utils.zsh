@@ -19,6 +19,8 @@ shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/"
 # Constants #
 #############
 github_api="https://api.github.com"
+videos_extensions=".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt"
+images_extensions=".png|.jpeg|.jpg|.gif|.bmp|.tiff"
 YELLOW="\033[1;93m"
 RED="\033[0;31m"
 NOFORMAT="\033[0m"
@@ -173,6 +175,7 @@ elif [[ "$tooling" == *"Any Video"* ]] ; then
     gum format -- "What do you to do with the video?"
     action=$(gum choose --height=20 --cursor="" \
         "  ﹥  Check quality difference" \
+        "  ﹥  Convert (lossless)" \
         "  ↵ Go back" \
     )
 
@@ -270,7 +273,7 @@ if [[ "$tooling" == *"Any File"* && "$action" == *"Get mime type"* ]] ; then
         local type=$(file --mime-type -b "$file")
         print "The mime type is ${YELLOW}$type${NOFORMAT}\n"
     else
-        error "No file was selected."
+        error "No file selected."
     fi
 
 #
@@ -283,7 +286,7 @@ elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ;
     elif [[ -z "${SHORTPIXEL_API}" ]] ; then
         print "Please set the SHORTPIXEL_API environment variable with your ShortPixel API Key."
     else
-        local file=$(getFile "file" ".png|.jpeg|.jpg|.gif|.bmp|.tiff")
+        local file=$(getFile "file" "$images_extensions")
 
         if [[ $file ]] ; then
             local filename="${file%.*}"
@@ -302,36 +305,71 @@ elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ;
             mv "$folder$file" .
             rm -rf "$folder"
         else
-            error "No file was selected."
+            error "No file selected."
         fi
     fi
 
 #
 # Any Video: Check quality difference
 #
-elif [[ "$tooling" == *"Any Video"* && "$action" == *"Check quality difference"* ]] ; then
+elif [[ "$tooling" == *"Any Video"* ]] ; then
 
-    # ffprobe is also installed with ffmpeg
-    if [[ $(which ffmpeg | grep "not found" ) ]] ; then
-        installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
-    else
-        local firstFile=$(getFile "first video" ".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt")
+    if [[ "$action" == *"Check quality difference"* ]] ; then
 
-        if [[ "$firstFile" ]] ; then
-            local secondFile=$(getFile "second video" ".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt")
+        # ffprobe is also installed with ffmpeg
+        if [[ $(which ffmpeg | grep "not found" ) ]] ; then
+            installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
+        else
+            local firstFile=$(getFile "first video" "$videos_extensions")
 
-            if [[ "$secondFile" ]] ; then
-                ffmpeg -i "$firstFile" -i "$secondFile" -filter_complex "blend=all_mode=difference" -c:v libx264 -crf 18 -c:a copy video-difference.mp4
+            if [[ "$firstFile" ]] ; then
+                local secondFile=$(getFile "second video" "$videos_extensions")
 
-                local confirmation=$(gum confirm "The differences are highlighted in video-difference.mp4 (green = same). Want to watch the result?" && print "true" || print "false")
-                if [[ $confirmation == "true" ]] ; then
-                    open video-difference.mp4
+                if [[ "$secondFile" ]] ; then
+                    ffmpeg -i "$firstFile" -i "$secondFile" -filter_complex "blend=all_mode=difference" -c:v libx264 -crf 18 -c:a copy video-difference.mp4
+
+                    local confirmation=$(gum confirm "The differences are highlighted in video-difference.mp4 (green = same). Want to watch the result?" && print "true" || print "false")
+                    if [[ $confirmation == "true" ]] ; then
+                        open video-difference.mp4
+                    fi
+                else
+                    error "No file selected."
                 fi
             else
-                error "No file was selected."
+                error "No file selected."
             fi
+        fi
+
+    elif [[ "$action" == *"Convert (lossless)"* ]] ; then
+            if [[ $(which ffmpeg | grep "not found" ) ]] ; then
+            installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
         else
-            error "No file was selected."
+            local file=$(getFile "first video" "$videos_extensions")
+
+            if [[ "$file" ]] ; then
+
+                local extensions=($(echo "$videos_extensions" | sed 's/\./\"/g' | sed 's/|/\" /g')\")
+
+                local command="gum choose --height=20 --cursor=\"\""
+                for which in "$extensions[@]"; do
+                    command="$command $which"
+                done
+
+                gum format -- "Which video format output?"
+                format=$(eval "$command")
+
+                if [[ "$format" ]] ; then
+                    local filename="${file%.*}"
+
+                    print
+                    ffmpeg -loglevel error -stats -i "$file" -crf 18 -preset veryslow -c:a copy "$filename-output.$format"
+                    print
+                else
+                    error "No file format selected."
+                fi
+            else
+                error "No file selected."
+            fi
         fi
     fi
 
@@ -426,7 +464,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
                 print "images are in the pdf-images folder"
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -444,7 +482,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 local filename=$(basename "$file" .pdf)
                 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -462,7 +500,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 print ""
                 pdffonts "$file"
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -477,7 +515,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local pages=$(mdls -name kMDItemNumberOfPages -raw "$file")
             print "The number of pages is ${YELLOW}$pages${NOFORMAT}\n"
         else
-            error "No file was selected."
+            error "No file selected."
         fi
 
     #
@@ -495,7 +533,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
 
                 print "The file is ${YELLOW}$protection${NOFORMAT}\n"
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -514,7 +552,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 pdfimages -list "$file"
                 print ""
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -535,7 +573,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 gum style --foreground "#FFFF00" "$(/bin/ls -1 pdf-image*)"
                 print ""
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -575,7 +613,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
 
                 print ""
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -602,7 +640,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                     print ""
                 fi
             else
-                error "No file was selected."
+                error "No file selected."
             fi
         fi
 
@@ -625,7 +663,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                     pdfcrack -f "$file"
                     print ""
                 else
-                    error "No file was selected."
+                    error "No file selected."
                 fi
             fi
         fi
@@ -647,7 +685,7 @@ elif [[ "$tooling" == *"WAV"* && "$action" == *"Convert to MP3"* ]] ; then
             ffmpeg -i "$file" -acodec libmp3lame "${file/%wav/mp3}";
             print ""
         else
-            error "No file was selected."
+            error "No file selected."
         fi
     fi
 
