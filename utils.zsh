@@ -693,6 +693,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             data="${data}${YELLOW}SDKS\n"
             data="${data}_________________${NOCOLOR}\n"
 
+            #.NET Core
+            data="${data}.NET Core $(dotnet --version)\n\n"
+
             #Deno
             data="${data}Deno $(deno --version | head -n 1 | sed -E 's/deno (.*) \(.*/\1/g')\n\n"
 
