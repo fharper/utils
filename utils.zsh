@@ -608,7 +608,8 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             installApp "jq" "https://github.com/jqlang/jq"
     else
 
-        local info=("OS" "Browsers" "Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs" "IDEs")
+        local info=("OS" "Browsers")
+        local infoUnselected=("Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
 
         local command="gum choose"
 
@@ -617,8 +618,11 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             command="$command \"$what\""
         done
 
-        #Add choices not selected by default here
-        command="$command \"Visual Studio Extensions\" --no-limit"
+        #Listing the unselected by default choices
+        for what in "$infoUnselected[@]"; do
+            command="$command \"$what\""
+        done
+
         command="$command --no-limit"
 
         #Selecting all the choices
