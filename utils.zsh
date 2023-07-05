@@ -767,8 +767,8 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             fi
 
             data="${data}$(zsh --version)\n"
-            source $ZSH/oh-my-zsh.sh
-            data="${data}OMZ (Oh My Zsh): $(omz version)\n\n"
+            source ~/.zshrc
+            data="${data}OMZ (Oh My Zsh): $(omz version) with $(echo $ZSH_THEME) theme\n\n"
         fi
 
         #SDKs
