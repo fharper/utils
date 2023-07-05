@@ -184,6 +184,7 @@ elif [[ "$tooling" == *"Apple"* ]] ; then
     gum format -- "What do you to do with Apple?"
     action=$(gum choose --height=20 --cursor="" \
         "  > Download latest macOS" \
+        "  > Show Time Machine logs" \
         "  ↵ Go back" \
     )
 
@@ -374,17 +375,44 @@ elif [[ "$tooling" == *"Any Video"* ]] ; then
     fi
 
 #
-# Apple: Download latest macOS
+# Apple
 #
-elif [[ "$tooling" == *"Apple"* && "$action" == *"Download latest macOS"* ]] ; then
-    if [[ $(which curl | grep "not found" ) ]] ; then
-        installApp "curl" "https://github.com/curl/curl"
-    else
-        url=$(curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g')
-        file=$(print $url | sed -E 's/^.*\/(.*ipsw)/\1/g')
-        version=$(print $file | sed -E 's/.*_(.*)_.*_.*/\1/g')
-        print "Downloading macOS version $version\n"
-        curl "$url" -o "$file"
+elif [[ "$tooling" == *"Apple"* ]] ; then
+
+    #
+    # Download latest macOS
+    #
+    if [[ "$action" == *"Download latest macOS"* ]] ; then
+        if [[ $(which curl | grep "not found" ) ]] ; then
+            installApp "curl" "https://github.com/curl/curl"
+        else
+            url=$(curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g')
+            file=$(print $url | sed -E 's/^.*\/(.*ipsw)/\1/g')
+            version=$(print $file | sed -E 's/.*_(.*)_.*_.*/\1/g')
+            print "Downloading macOS version $version\n"
+            curl "$url" -o "$file"
+        fi
+
+    #
+    # Show Time Machine logs
+    #
+    elif [[ "$action" == *"Show Time Machine logs"* ]] ; then
+        gum format -- "Get the Time Machine logs for the last..."
+        local last=$(gum choose --height=20 --cursor="" \
+            "  ﹥ 5 minutes" \
+            "  ﹥ 1 hour" \
+            "  ﹥ 1 day" \
+            "  ﹥ 1 week" \
+        )
+        clearLastLine
+
+        if [[ $last ]] ; then
+            last=$(print $last | sed 's/  ﹥ //g' | sed 's/ minutes/m/g' | sed 's/ hour/h/g' | sed 's/ day/d/g' | sed 's/1 week/7d/g')
+            /usr/bin/log show --info --style compact --predicate 'subsystem == "com.apple.TimeMachine"' --last $last --color always | more -r
+            print
+        else
+            error "No time span selected."
+        fi
     fi
 
 #
