@@ -146,99 +146,99 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 #
 local action=""
 gum format -- "What tooling do you want to use utils for?"
-tooling=$(gum choose \
-    "1- Any File" \
-    "2- Any Image" \
-    "3- GitHub" \
-    "4- HTTP" \
-    "5- Kubernetes" \
-    "6- PDF" \
-    "7- System" \
-    "8- WAV" \
-    "9- YouTube" \
-    "10- EXIT" \
+tooling=$(gum choose --height=20 --cursor="" \
+    "  ﹥ Any File" \
+    "  ﹥ Any Image" \
+    "  ﹥ GitHub" \
+    "  ﹥ HTTP" \
+    "  ﹥ Kubernetes" \
+    "  ﹥ PDF" \
+    "  ﹥ System" \
+    "  ﹥ WAV" \
+    "  ﹥ YouTube" \
+    "     EXIT" \
 )
 clearLastLine
 
 # Any Files Submenu
 if [[ "$tooling" == *"Any File"* ]] ; then
     gum format -- "What do you to do with the file?"
-    action=$(gum choose \
-        "1- Get mime type" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  ﹥ Get mime type" \
+        "  ↵ Go back" \
     )
 
 # Any Images Submenu
 elif [[ "$tooling" == *"Any Image"* ]] ; then
     gum format -- "What do you to do with the image?"
-    action=$(gum choose \
-        "1- Compress (lossless)" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  ﹥  Compress (lossless)" \
+        "  ↵ Go back" \
     )
 
 # GitHub Actions Submenu
 elif [[ "$tooling" == *"GitHub"* ]] ; then
     gum format -- "What do you to do with GitHub?"
-    action=$(gum choose \
-        "1- Get user information" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Get user information" \
+        "  ↵ Go back" \
     )
 
 # HTTP Actions Submenu
 elif [[ "$tooling" == *"HTTP"* ]] ; then
     gum format -- "What do you to do with HTTP?"
-    action=$(gum choose \
-        "1- Find if website is DDoS protected" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Find if website is DDoS protected" \
+        "  ↵ Go back" \
     )
 
 # Kubernetes Actions Submenu
 elif [[ "$tooling" == *"Kubernetes"* ]] ; then
     gum format -- "What do you to do with Kubernetes?"
-    action=$(gum choose \
-        "1- Get ports fowarded" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Get ports fowarded" \
+        "  ↵ Go back" \
     )
 
 # PDF Actions Submenu
 elif [[ "$tooling" == *"PDF"* ]] ; then
     gum format -- "What do you to do with the PDF?"
-    action=$(gum choose \
-        "1- Check if encrypted" \
-        "2- Check if protected" \
-        "3- Compress (lossless)" \
-        "4- Convert pages to images" \
-        "5- Crack protected" \
-        "6- Decrypt" \
-        "7- Extract embedded images" \
-        "8- List embedded fonts" \
-        "9- List embedded images" \
-        "10- List number of pages" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Check if encrypted" \
+        "  > Check if protected" \
+        "  > Compress (lossless)" \
+        "  > Convert pages to images" \
+        "  > Crack protected" \
+        "  > Decrypt" \
+        "  > Extract embedded images" \
+        "  > List embedded fonts" \
+        "  > List embedded images" \
+        "  > List number of pages" \
+        "  ↵ Go back" \
     )
 
 # System Actions Submenu
 elif [[ "$tooling" == *"System"* ]] ; then
     gum format -- "What do you to do with the system?"
-    action=$(gum choose \
-        "1- Get information" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Get information" \
+        "  ↵ Go back" \
     )
 
 # WAV Actions Submenu
 elif [[ "$tooling" == *"WAV"* ]] ; then
     gum format -- "What do you to do with the WAV file?"
-    action=$(gum choose \
-        "1- Convert to MP3" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Convert to MP3" \
+        "  ↵ Go back" \
     )
 
 # YouTube Actions Submenu
 elif [[ "$tooling" == *"YouTube"* ]] ; then
     gum format -- "What do you to do with YouTube?"
-    action=$(gum choose \
-        "1- Download a video thumbnail" \
-        "↵ Go back" \
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Download a video thumbnail" \
+        "  ↵ Go back" \
     )
 
 # If empty, Ctrl + C was selected (for whatever I cannot trap SIGINT)
