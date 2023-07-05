@@ -761,7 +761,6 @@ done
 #
 # Quitting
 #
-    print "\n"
     say "Goodbye my lover"
     say "Goodbye my friend"
     say "You have been the one"
