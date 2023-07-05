@@ -712,7 +712,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
                 data="${data}${YELLOW}Internet Speed\n"
                 data="${data}________________${NOFORMAT}\n"
 
-                data="${data}$(speedtest-cli | grep -E "Download:|Upload:")\n\n"
+                data="${data}$(speedtest-cli --secure --simple)\n\n"
             fi
         fi
 
