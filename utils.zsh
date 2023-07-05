@@ -16,7 +16,6 @@
 # Known issues:
 # - If no cluster configuration available to kubectl, let the user know
 # - Add utils to compress videos --- ffmpeg -i "$f" -c:v libx264 -crf 18 -preset veryslow -c:a copy "${f/%.backup.mp4/.mp4}"
-# - Add utils to download latest macOS --- curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g'
 # - Add utils to check video quality between two videos (see end of script)
 #
 ##################################################################
@@ -149,6 +148,7 @@ gum format -- "What tooling do you want to use utils for?"
 tooling=$(gum choose --height=20 --cursor="" \
     "  ﹥ Any File" \
     "  ﹥ Any Image" \
+    "  ﹥ Apple" \
     "  ﹥ GitHub" \
     "  ﹥ HTTP" \
     "  ﹥ Kubernetes" \
@@ -173,6 +173,14 @@ elif [[ "$tooling" == *"Any Image"* ]] ; then
     gum format -- "What do you to do with the image?"
     action=$(gum choose --height=20 --cursor="" \
         "  ﹥  Compress (lossless)" \
+        "  ↵ Go back" \
+    )
+
+# Apple Submenu
+elif [[ "$tooling" == *"Apple"* ]] ; then
+    gum format -- "What do you to do with Apple?"
+    action=$(gum choose --height=20 --cursor="" \
+        "  > Download latest macOS" \
         "  ↵ Go back" \
     )
 
@@ -296,6 +304,20 @@ elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ;
         else
             error "No file was selected."
         fi
+    fi
+
+#
+# Apple: Download latest macOS
+#
+elif [[ "$tooling" == *"Apple"* && "$action" == *"Download latest macOS"* ]] ; then
+    if [[ $(which curl | grep "not found" ) ]] ; then
+        installApp "curl" "https://github.com/curl/curl"
+    else
+        url=$(curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g')
+        file=$(print $url | sed -E 's/^.*\/(.*ipsw)/\1/g')
+        version=$(print $file | sed -E 's/.*_(.*)_.*_.*/\1/g')
+        print "Downloading macOS version $version\n"
+        curl "$url" -o "$file"
     fi
 
 #
