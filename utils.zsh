@@ -311,10 +311,13 @@ elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ;
     fi
 
 #
-# Any Video: Check quality difference
+# Any Video
 #
 elif [[ "$tooling" == *"Any Video"* ]] ; then
 
+    #
+    # Check quality difference
+    #
     if [[ "$action" == *"Check quality difference"* ]] ; then
 
         # ffprobe is also installed with ffmpeg
@@ -341,6 +344,9 @@ elif [[ "$tooling" == *"Any Video"* ]] ; then
             fi
         fi
 
+    #
+    # Convert (lossless)
+    #
     elif [[ "$action" == *"Convert (lossless)"* ]] ; then
             if [[ $(which ffmpeg | grep "not found" ) ]] ; then
             installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
