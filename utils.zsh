@@ -31,7 +31,8 @@ shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/" # More info at
 github_api="https://api.github.com"
 YELLOW="\033[1;93m"
 RED="\033[0;31m"
-NOCOLOR="\033[0m"
+NOFORMAT="\033[0m"
+BOLD="\033[1m"
 
 #############
 # Functions #
@@ -55,7 +56,7 @@ function installApp {
         then
             curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
         else
-            print "Please install ${YELLOW}Homebrew${NOCOLOR} or ${YELLOW}$application${NOCOLOR} manually (see $website for instructions) and run the script again."
+            print "Please install ${YELLOW}Homebrew${NOFORMAT} or ${YELLOW}$application${NOFORMAT} manually (see $website for instructions) and run the script again."
             exit
         fi
     fi
@@ -87,10 +88,10 @@ function getFile {
     local file;
 
     if [[ $files ]] ; then
-        print "Please select a ${YELLOW}$1${NOCOLOR}" >&2
+        print "Please select a ${YELLOW}$1${NOFORMAT}" >&2
         file=$(/bin/ls | egrep "$2" | gum choose)
     else
-        print "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOCOLOR} manually" >&2
+        print "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOFORMAT} manually" >&2
         file=$(gum input --placeholder "/Users/fharper/Downloads/your-file$2")
     fi
 
@@ -100,7 +101,7 @@ function getFile {
 
 # Display error messages
 function error {
-    print "${RED}$1${NOCOLOR}"
+    print "${RED}$1${NOFORMAT}"
 }
 
 # Check if PDF is protected
@@ -268,7 +269,7 @@ if [[ "$tooling" == *"Any File"* && "$action" == *"Get mime type"* ]] ; then
 
     if [[ $file ]] ; then
         local type=$(file --mime-type -b "$file")
-        print "The mime type is ${YELLOW}$type${NOCOLOR}\n"
+        print "The mime type is ${YELLOW}$type${NOFORMAT}\n"
     else
         error "No file was selected."
     fi
@@ -446,7 +447,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         if [[ $file ]] ; then
             print ""
             local pages=$(mdls -name kMDItemNumberOfPages -raw "$file")
-            print "The number of pages is ${YELLOW}$pages${NOCOLOR}\n"
+            print "The number of pages is ${YELLOW}$pages${NOFORMAT}\n"
         else
             error "No file was selected."
         fi
@@ -464,7 +465,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 print ""
                 protection=$(isPdfProtected "$file")
 
-                print "The file is ${YELLOW}$protection${NOCOLOR}\n"
+                print "The file is ${YELLOW}$protection${NOFORMAT}\n"
             else
                 error "No file was selected."
             fi
@@ -527,21 +528,21 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                 if [[ $output ]] ; then
                     local algorithm=$(print $output | egrep -o 'algorithm:.*[^)]' | sed -n "s/algorithm:/$1/p")
 
-                    print "The file is ${YELLOW}encrypted${NOCOLOR} with the ${YELLOW}$algorithm${NOCOLOR} algorithm:"
+                    print "The file is ${YELLOW}encrypted${NOFORMAT} with the ${YELLOW}$algorithm${NOFORMAT} algorithm:"
 
                     local print=$(print $output | egrep -o 'print:\S*' | sed -n "s/print:/$1/p")
-                    print "Printing: ${YELLOW}$print${NOCOLOR}"
+                    print "Printing: ${YELLOW}$print${NOFORMAT}"
 
                     local copy=$(print $output | egrep -o 'copy:\S*' | sed -n "s/copy:/$1/p")
-                    print "Copying: ${YELLOW}$copy${NOCOLOR}"
+                    print "Copying: ${YELLOW}$copy${NOFORMAT}"
 
                     local change=$(print $output | egrep -o 'change:\S*' | sed -n "s/change:/$1/p")
-                    print "Changing: ${YELLOW}$change${NOCOLOR}"
+                    print "Changing: ${YELLOW}$change${NOFORMAT}"
 
                     local notes=$(print $output | egrep -o 'addNotes:\S*' | sed -n "s/addNotes:/$1/p")
-                    print "Add Notes: ${YELLOW}$notes${NOCOLOR}"
+                    print "Add Notes: ${YELLOW}$notes${NOFORMAT}"
                 else
-                    print "The file is ${YELLOW}not encrypted${NOCOLOR}"
+                    print "The file is ${YELLOW}not encrypted${NOFORMAT}"
                 fi
 
                 print ""
@@ -569,7 +570,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
                     local filename=$(basename "$file" .pdf)
                     local unlocked_file="$filename-unlocked.pdf"
                     qpdf -decrypt "$file" "$unlocked_file"
-                    print "File ${YELLOW}$unlocked_file${NOCOLOR} unlocked/decrypted"
+                    print "File ${YELLOW}$unlocked_file${NOFORMAT} unlocked/decrypted"
                     print ""
                 fi
             else
@@ -662,7 +663,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Operating System
         if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Operating System\n"
-            data="${data}________________${NOCOLOR}\n"
+            data="${data}________________${NOFORMAT}\n"
             data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
         fi
 
@@ -672,7 +673,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
                 installApp "speedtest-cli" "https://github.com/sivel/speedtest-cli"
             else
                 data="${data}${YELLOW}Internet Speed\n"
-                data="${data}________________${NOCOLOR}\n"
+                data="${data}________________${NOFORMAT}\n"
 
                 data="${data}$(speedtest-cli | grep -E "Download:|Upload:")\n\n"
             fi
@@ -681,7 +682,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Browsers
         if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Browsers\n"
-            data="${data}________${NOCOLOR}\n"
+            data="${data}________${NOFORMAT}\n"
 
             if [[ -d "/Applications/Brave Browser.app" ]] ; then
                 data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
@@ -709,7 +710,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Display(s)
         if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Displays\n"
-            data="${data}________${NOCOLOR}\n"
+            data="${data}________${NOFORMAT}\n"
             resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
             data="${data}${resolutions:gs/          /}\n\n"
         fi
@@ -717,7 +718,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Terminal
         if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Terminal\n"
-            data="${data}________${NOCOLOR}\n"
+            data="${data}________${NOFORMAT}\n"
 
             if [[ -d "/Applications/iTerm.app" ]] ; then
                 data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
@@ -731,7 +732,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #SDKs
         if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}SDKS\n"
-            data="${data}_________________${NOCOLOR}\n"
+            data="${data}_________________${NOFORMAT}\n"
 
             #.NET Core
             data="${data}.NET Core $(dotnet --version)\n\n"
@@ -776,7 +777,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Docker
         if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Docker\n"
-            data="${data}_________________${NOCOLOR}\n"
+            data="${data}_________________${NOFORMAT}\n"
 
             if [[ $(docker version 2>&1 | grep "Cannot connect to the Docker daemon") ]] ; then
                 data="${data}Docker Desktop isn't running: start the app to get this information.\n\n"
@@ -788,7 +789,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Clouds CLIs
         if [[ ${selectedInfo[(ie)Clouds CLIs]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Clouds CLIs\n"
-            data="${data}_________________${NOCOLOR}\n"
+            data="${data}_________________${NOFORMAT}\n"
 
             #AWS
             data="${data}AWS $(aws --version | sed -E 's/aws-cli\/(.*) Python.*/\1/g')\n"
@@ -812,7 +813,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #IDEs
         if [[ ${selectedInfo[(ie)IDEs]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}IDEs\n"
-            data="${data}_________________${NOCOLOR}\n"
+            data="${data}_________________${NOFORMAT}\n"
 
             #VIM
             data="${data}VIM $(vi --version | head -n 1 | sed -E 's/VIM - Vi IMproved (.*) \(.*/\1/g')\n"
@@ -824,7 +825,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
         #Visual Studio Extensions
         if [[ ${selectedInfo[(ie)Visual Studio Extensions]} -le ${#selectedInfo} ]] ; then
             data="${data}${YELLOW}Visual Studio Extensions\n"
-            data="${data}_________________${NOCOLOR}\n"
+            data="${data}_________________${NOFORMAT}\n"
 
             data="${data}$(code --list-extensions --show-versions)"
         fi
@@ -835,7 +836,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Removing formating
         data=${data//${YELLOW}/}
-        data=${data//${NOCOLOR}/}
+        data=${data//${NOFORMAT}/}
 
         # Copy it to clipboard
         print "$data" | pbcopy
