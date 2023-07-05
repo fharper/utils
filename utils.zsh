@@ -617,6 +617,8 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             command="$command \"$what\""
         done
 
+        #Add choices not selected by default here
+        command="$command \"Visual Studio Extensions\" --no-limit"
         command="$command --no-limit"
 
         #Selecting all the choices
@@ -778,7 +780,15 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             data="${data}VIM $(vi --version | head -n 1 | sed -E 's/VIM - Vi IMproved (.*) \(.*/\1/g')\n"
 
             #Visual Studio Code
-            data="${data}Visual Studio Code $(code --version | head -n 1)"
+            data="${data}Visual Studio Code $(code --version | head -n 1)\n\n"
+        fi
+
+        #Visual Studio Extensions
+        if [[ ${selectedInfo[(ie)Visual Studio Extensions]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}Visual Studio Extensions\n"
+            data="${data}_________________${NOCOLOR}\n"
+
+            data="${data}$(code --list-extensions --show-versions)"
         fi
 
         # Display the system information
