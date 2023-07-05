@@ -35,7 +35,7 @@ NOCOLOR="\033[0m"
 # Functions #
 #############
 
-# Echo something with style
+# Print something with style
 function say {
     gum style --foreground 93 "$1"
 }
@@ -53,19 +53,19 @@ function installApp {
         then
             curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
         else
-            echo "Please install ${YELLOW}Homebrew${NOCOLOR} or ${YELLOW}$application${NOCOLOR} manually (see $website for instructions) and run the script again."
+            print "Please install ${YELLOW}Homebrew${NOCOLOR} or ${YELLOW}$application${NOCOLOR} manually (see $website for instructions) and run the script again."
             exit
         fi
     fi
 
-    local confirmation=$(gum confirm "$application needs to be installed to run this command. Do you want to install it?" && echo "true" || echo "false")
+    local confirmation=$(gum confirm "$application needs to be installed to run this command. Do you want to install it?" && print "true" || print "false")
     if [[ "$confirmation" == "true" ]] ; then
         tput sc
         brew install "$application"
         tput rc
         tput ed
     else
-        echo "$application not installed. Install it manually (see $website for instructions) and run the script again."
+        print "$application not installed. Install it manually (see $website for instructions) and run the script again."
         exit
     fi
 }
@@ -85,20 +85,33 @@ function getFile {
     local file;
 
     if [[ $files ]] ; then
-        echo "Please select a ${YELLOW}$1${NOCOLOR}" >&2
+        print "Please select a ${YELLOW}$1${NOCOLOR}" >&2
         file=$(/bin/ls | egrep "$2" | gum choose)
     else
-        echo "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOCOLOR} manually" >&2
+        print "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOCOLOR} manually" >&2
         file=$(gum input --placeholder "/Users/fharper/Downloads/your-file$2")
     fi
 
     clearLastLine
-    echo "$file"
+    print "$file"
 }
 
 # Display error messages
 function error {
-    echo "${RED}$1${NOCOLOR}"
+    print "${RED}$1${NOCOLOR}"
+}
+
+# Check if PDF is protected
+# @param PDF file to check
+function isPdfProtected {
+    local output=$(gs -dBATCH -sNODISPLAY "$1" 2>&1 | grep -o "This file requires a password")
+
+    local protection="protected"
+    if [[ ! $output ]] ; then
+        protection="un$protection"
+    fi
+
+    print "$protection"
 }
 
 ##################
@@ -230,7 +243,7 @@ if [[ "$tooling" == *"Any File"* && "$action" == *"Get mime type"* ]] ; then
 
     if [[ $file ]] ; then
         local type=$(file --mime-type -b "$file")
-        echo "The mime type is ${YELLOW}$type${NOCOLOR}\n"
+        print "The mime type is ${YELLOW}$type${NOCOLOR}\n"
     else
         error "No file was selected."
     fi
@@ -243,7 +256,7 @@ elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ;
     if [[ $(which php | grep "not found" ) ]] ; then
         installApp "php" "https://github.com/php/php-src"
     elif [[ -z "${SHORTPIXEL_API}" ]] ; then
-        echo "Please set the SHORTPIXEL_API environment variable with your ShortPixel API Key."
+        print "Please set the SHORTPIXEL_API environment variable with your ShortPixel API Key."
     else
         local file=$(getFile "file" ".png|.jpeg|.jpg|.gif|.bmp|.tiff")
 
@@ -285,7 +298,7 @@ elif [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; t
     clearLastLine
 
     if [[ $username ]] ; then
-        echo ""
+        print ""
         curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq '.name, .email, .blog' | tr -d '"' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq '.[] .url' | tr -d '"'
     else
         error "No username was entered."
@@ -302,8 +315,8 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
         local site=$(gum input --placeholder "https://fred.dev")
 
         if [[ $site ]] ; then
-            echo ""
-            curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || echo "Nope"
+            print ""
+            curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || print "Nope"
         else
             error "No site was entered."
         fi
@@ -338,12 +351,12 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
+                print ""
                 local filename=$(basename "$file" .pdf)
                 mkdir -p pdf-images
 
                 convert -density 300 "$file" -quality 100 "pdf-images/$filename.jpg"
-                echo "images are in the pdf-images folder"
+                print "images are in the pdf-images folder"
             else
                 error "No file was selected."
             fi
@@ -359,7 +372,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
+                print ""
                 local filename=$(basename "$file" .pdf)
                 gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
             else
@@ -378,7 +391,7 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
+                print ""
                 pdffonts "$file"
             else
                 error "No file was selected."
@@ -392,9 +405,9 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         local file=$(getFile "PDF" ".pdf")
 
         if [[ $file ]] ; then
-            echo ""
+            print ""
             local pages=$(mdls -name kMDItemNumberOfPages -raw "$file")
-            echo "The number of pages is ${YELLOW}$pages${NOCOLOR}\n"
+            print "The number of pages is ${YELLOW}$pages${NOCOLOR}\n"
         else
             error "No file was selected."
         fi
@@ -409,16 +422,10 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
-                local output=$(gs -dBATCH -sNODISPLAY "$file" 2>&1 | grep -o "This file requires a password")
+                print ""
+                protection=$(isPdfProtected "$file")
 
-                local protection="protected"
-                if [[ ! $output ]] ;
-                then
-                    protection="un$protection"
-                fi
-
-                echo "The file is ${YELLOW}$protection${NOCOLOR}\n"
+                print "The file is ${YELLOW}$protection${NOCOLOR}\n"
             else
                 error "No file was selected."
             fi
@@ -435,9 +442,9 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
+                print ""
                 pdfimages -list "$file"
-                echo ""
+                print ""
             else
                 error "No file was selected."
             fi
@@ -454,11 +461,11 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
+                print ""
                 pdfimages -all "$file" -p pdf-image
-                echo "Extracted images:"
+                print "Extracted images:"
                 gum style --foreground "#FFFF00" "$(/bin/ls -1 pdf-image*)"
-                echo ""
+                print ""
             else
                 error "No file was selected."
             fi
@@ -475,30 +482,30 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
+                print ""
                 local output=$(pdfinfo "$file" | grep Encrypted | grep yes)
 
                 if [[ $output ]] ; then
-                    local algorithm=$(echo $output | egrep -o 'algorithm:.*[^)]' | sed -n "s/algorithm:/$1/p")
+                    local algorithm=$(print $output | egrep -o 'algorithm:.*[^)]' | sed -n "s/algorithm:/$1/p")
 
-                    echo "The file is ${YELLOW}encrypted${NOCOLOR} with the ${YELLOW}$algorithm${NOCOLOR} algorithm:"
+                    print "The file is ${YELLOW}encrypted${NOCOLOR} with the ${YELLOW}$algorithm${NOCOLOR} algorithm:"
 
-                    local print=$(echo $output | egrep -o 'print:\S*' | sed -n "s/print:/$1/p")
-                    echo "Printing: ${YELLOW}$print${NOCOLOR}"
+                    local print=$(print $output | egrep -o 'print:\S*' | sed -n "s/print:/$1/p")
+                    print "Printing: ${YELLOW}$print${NOCOLOR}"
 
-                    local copy=$(echo $output | egrep -o 'copy:\S*' | sed -n "s/copy:/$1/p")
-                    echo "Copying: ${YELLOW}$copy${NOCOLOR}"
+                    local copy=$(print $output | egrep -o 'copy:\S*' | sed -n "s/copy:/$1/p")
+                    print "Copying: ${YELLOW}$copy${NOCOLOR}"
 
-                    local change=$(echo $output | egrep -o 'change:\S*' | sed -n "s/change:/$1/p")
-                    echo "Changing: ${YELLOW}$change${NOCOLOR}"
+                    local change=$(print $output | egrep -o 'change:\S*' | sed -n "s/change:/$1/p")
+                    print "Changing: ${YELLOW}$change${NOCOLOR}"
 
-                    local notes=$(echo $output | egrep -o 'addNotes:\S*' | sed -n "s/addNotes:/$1/p")
-                    echo "Add Notes: ${YELLOW}$notes${NOCOLOR}"
+                    local notes=$(print $output | egrep -o 'addNotes:\S*' | sed -n "s/addNotes:/$1/p")
+                    print "Add Notes: ${YELLOW}$notes${NOCOLOR}"
                 else
-                    echo "The file is ${YELLOW}not encrypted${NOCOLOR}"
+                    print "The file is ${YELLOW}not encrypted${NOCOLOR}"
                 fi
 
-                echo ""
+                print ""
             else
                 error "No file was selected."
             fi
@@ -515,12 +522,17 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             local file=$(getFile "PDF" ".pdf")
 
             if [[ $file ]] ; then
-                echo ""
-                local filename=$(basename "$file" .pdf)
-                local unlocked_file="$filename-unlocked.pdf"
-                qpdf -decrypt "$file" "$unlocked_file"
-                echo "File ${YELLOW}$unlocked_file${NOCOLOR} unlocked/decrypted"
-                echo ""
+                print ""
+                if [[ $(isPdfProtected "$file") == "protected" ]] ; then
+                    error "The PDF is protected: you need to remove the protection first."
+                    print ""
+                else
+                    local filename=$(basename "$file" .pdf)
+                    local unlocked_file="$filename-unlocked.pdf"
+                    qpdf -decrypt "$file" "$unlocked_file"
+                    print "File ${YELLOW}$unlocked_file${NOCOLOR} unlocked/decrypted"
+                    print ""
+                fi
             else
                 error "No file was selected."
             fi
@@ -534,16 +546,16 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         if [[ $(which pdfcrack | grep "not found" ) ]] ; then
             installApp "pdfcrack" "https://sourceforge.net/projects/pdfcrack/"
         else
-            local confirmation=$(gum confirm "Is it on a PDF you own or have the right to view but lost the password?" && echo "true" || echo "false")
+            local confirmation=$(gum confirm "Is it on a PDF you own or have the right to view but lost the password?" && print "true" || print "false")
 
             if [[ $confirmation == "true" ]] ; then
 
                 local file=$(getFile "PDF" ".pdf")
 
                 if [[ $file ]] ; then
-                    echo ""
+                    print ""
                     pdfcrack -f "$file"
-                    echo ""
+                    print ""
                 else
                     error "No file was selected."
                 fi
@@ -563,9 +575,9 @@ elif [[ "$tooling" == *"WAV"* && "$action" == *"Convert to MP3"* ]] ; then
         local file=$(getFile "WAV" ".wav")
 
         if [[ $file ]] ; then
-            echo ""
+            print ""
             ffmpeg -i "$file" -acodec libmp3lame "${file/%wav/mp3}";
-            echo ""
+            print ""
         else
             error "No file was selected."
         fi
@@ -579,7 +591,7 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     local video=$(gum input --placeholder "https://www.youtube.com/watch?v=-8pX4ayi_XY")
 
     if [[ $video ]] ; then
-        id=$(echo "$video" | sed 's/.*v=//g')
+        id=$(print "$video" | sed 's/.*v=//g')
         curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
     else
         error "No video URL was entered."
@@ -591,10 +603,10 @@ done
 #
 # Quitting
 #
-    echo "\n"
+    print "\n"
     say "Goodbye my lover"
     say "Goodbye my friend"
     say "You have been the one"
     say "You have been the one for me"
-    echo "\n"
+    print "\n"
     exit
