@@ -608,7 +608,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             installApp "jq" "https://github.com/jqlang/jq"
     else
 
-        local info=("OS" "Browsers")
+        local info=("OS" "Browsers" "Internet Speed")
         local infoUnselected=("Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
 
         local command="gum choose"
@@ -642,6 +642,18 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             data="${data}${YELLOW}Operating System\n"
             data="${data}________________${NOCOLOR}\n"
             data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
+        fi
+
+        #Internet Speed
+        if [[ ${selectedInfo[(ie)Internet Speed]} -le ${#selectedInfo} ]] ; then
+            if [[ $(which speedtest-cli | grep "not found" ) ]] ; then
+                installApp "speedtest-cli" "https://github.com/sivel/speedtest-cli"
+            else
+                data="${data}${YELLOW}Internet Speed\n"
+                data="${data}________________${NOCOLOR}\n"
+
+                data="${data}$(speedtest-cli | grep -E "Download:|Upload:")\n\n"
+            fi
         fi
 
         #Browsers
