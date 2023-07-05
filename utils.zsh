@@ -21,11 +21,12 @@
 ##################
 # Configurations #
 ##################
-local github_api="https://api.github.com"
+shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/" # More info at https://github.com/short-pixel-optimizer/shortpixel-php
 
-##########
-# Colors #
-##########
+#############
+# Constants #
+#############
+github_api="https://api.github.com"
 YELLOW="\033[1;93m"
 RED="\033[0;31m"
 NOCOLOR="\033[0m"
@@ -77,15 +78,15 @@ function clearLastLine {
 
 # Select a file from the running directory
 # @param file type (Images, PDFs...)
-# @param file extension (.pdf, .png, .jpg)
+# @param file extension (.pdf, .png, .jpg). If multiple extensions, use ".png|.jpeg"
 function getFile {
-    local files=$(/bin/ls *"$2")
+    local files=$(/bin/ls | egrep "$2")
     clearLastLine #I cannot get the error output to silence!
     local file;
 
     if [[ $files ]] ; then
         echo "Please select a ${YELLOW}$1${NOCOLOR}" >&2
-        file=$(/bin/ls *"$2" | gum choose)
+        file=$(/bin/ls | egrep "$2" | gum choose)
     else
         echo "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOCOLOR} manually" >&2
         file=$(gum input --placeholder "/Users/fharper/Downloads/your-file$2")
@@ -126,13 +127,14 @@ local action=""
 gum format -- "What tooling do you want to use utils for?"
 tooling=$(gum choose \
     "1- Any File" \
-    "2- GitHub" \
-    "3- HTTP" \
-    "4- Kubernetes" \
-    "5- PDF" \
-    "6- WAV" \
-    "7- YouTube" \
-    "8- EXIT" \
+    "2- Any Image" \
+    "3- GitHub" \
+    "4- HTTP" \
+    "5- Kubernetes" \
+    "6- PDF" \
+    "8- WAV" \
+    "9- YouTube" \
+    "10- EXIT" \
 )
 clearLastLine
 
@@ -141,6 +143,14 @@ if [[ "$tooling" == *"Any File"* ]] ; then
     gum format -- "What do you to do with the file?"
     action=$(gum choose \
         "1- Get mime type" \
+        "↵ Go back" \
+    )
+
+# Any Images Submenu
+elif [[ "$tooling" == *"Any Image"* ]] ; then
+    gum format -- "What do you to do with the image?"
+    action=$(gum choose \
+        "1- Compress (lossless)" \
         "↵ Go back" \
     )
 
@@ -213,7 +223,7 @@ clearLastLine
 ###########
 
 #
-# Any file: Get mime type
+# Any File: Get mime type
 #
 if [[ "$tooling" == *"Any File"* && "$action" == *"Get mime type"* ]] ; then
     local file=$(getFile "file" "")
@@ -223,6 +233,39 @@ if [[ "$tooling" == *"Any File"* && "$action" == *"Get mime type"* ]] ; then
         echo "The mime type is ${YELLOW}$type${NOCOLOR}\n"
     else
         error "No file was selected."
+    fi
+
+#
+# Any Image: Compress (lossless)
+#
+elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ; then
+
+    if [[ $(which php | grep "not found" ) ]] ; then
+        installApp "php" "https://github.com/php/php-src"
+    elif [[ -z "${SHORTPIXEL_API}" ]] ; then
+        echo "Please set the SHORTPIXEL_API environment variable with your ShortPixel API Key."
+    else
+        local file=$(getFile "file" ".png|.jpeg|.jpg|.gif|.bmp|.tiff")
+
+        if [[ $file ]] ; then
+            local filename="${file%.*}"
+            local extension="${file##*.}"
+
+            # Since ShortPixel only optimize a folder, we need to move the file to its own folder
+            local folder="/tmp/shortpixel-$RANDOM/"
+            mkdir "$folder"
+            cp "$file" "$filename.backup.$extension"
+            mv "$file" "$folder"
+
+            # Optimize the image
+            php "$shortpixel"lib/cmdShortpixelOptimize.php --apiKey="$SHORTPIXEL_API" --compression=0 --clearLock --folder="$folder"
+
+            # Move back the image
+            mv "$folder$file" .
+            rm -rf "$folder"
+        else
+            error "No file was selected."
+        fi
     fi
 
 #
