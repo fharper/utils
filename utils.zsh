@@ -114,6 +114,11 @@ function isPdfProtected {
     print "$protection"
 }
 
+function stringIndex() {
+  x="${1%%$2*}"
+  [[ "$x" = "$1" ]] && return -1 || return "${#x}"
+}
+
 ##################
 # Gum Dependency #
 ##################
@@ -145,6 +150,7 @@ tooling=$(gum choose \
     "4- HTTP" \
     "5- Kubernetes" \
     "6- PDF" \
+    "7- System" \
     "8- WAV" \
     "9- YouTube" \
     "10- EXIT" \
@@ -205,6 +211,14 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
         "8- List embedded fonts" \
         "9- List embedded images" \
         "10- List number of pages" \
+        "↵ Go back" \
+    )
+
+# System Actions Submenu
+elif [[ "$tooling" == *"System"* ]] ; then
+    gum format -- "What do you to do with the system?"
+    action=$(gum choose \
+        "1- Get information" \
         "↵ Go back" \
     )
 
@@ -583,6 +597,118 @@ elif [[ "$tooling" == *"WAV"* && "$action" == *"Convert to MP3"* ]] ; then
         fi
     fi
 
+#
+# System: Get information
+#
+elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
+    local info=("OS" "Browsers" "Displays" "Terminal" "SDKs" "Docker")
+
+    local command="gum choose"
+
+    #Listing the choices
+    for what in "$info[@]"; do
+        command="$command \"$what\""
+    done
+
+    command="$command --no-limit"
+
+    #Selecting all the choices
+    for what in "$info[@]"; do
+        command="$command --selected=\"$what\""
+    done
+
+    gum format -- "What information about your system do you need?"
+    local selectedInfo=("${(@f)$(eval $command)}")
+    clearLastLine
+
+    #Operating System
+    if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
+        print
+        print "${YELLOW}Operating System"
+        print "________________${NOCOLOR}"
+        print $(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)
+    fi
+
+    #Browsers
+    if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
+        print
+        print "${YELLOW}Browsers"
+        print "________${NOCOLOR}"
+
+        if [[ -d "/Applications/Brave Browser.app" ]] ; then
+            /Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version
+        fi
+
+        if [[ -d "/Applications/Chromium.app" ]] ; then
+         /Applications/Chromium.app/Contents/MacOS/Chromium --version
+        fi
+
+        if [[ -d "/Applications/Firefox.app" ]] ; then
+            /Applications/Firefox.app/Contents/MacOS/Firefox --version
+        fi
+
+        if [[ -d "/Applications/Google Chrome.app" ]] ; then
+            /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
+        fi
+
+        if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
+            /Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version
+        fi
+    fi
+
+    #Display(s)
+    if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
+        print
+        print "${YELLOW}Displays"
+        print "________${NOCOLOR}${NOCOLOR}"
+        resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
+        print ${resolutions:gs/          /}
+    fi
+
+    #Terminal
+    if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
+        print
+        print "${YELLOW}Terminal"
+        print "________${NOCOLOR}"
+
+        if [[ -d "/Applications/iTerm.app" ]] ; then
+            print "iTerm2 " $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)
+        fi
+
+        zsh --version
+        source $ZSH/oh-my-zsh.sh
+        print "OMZ (Oh My Zsh):" $(omz version)
+    fi
+
+    #SDKs
+    if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
+        print
+        print "${YELLOW}SDKS"
+        print "_________________${NOCOLOR}"
+        python -V
+        pip_version=$(pip -V)
+        pip_version_to= stringIndex $pip_version from
+        print ${pip_version[1,10]}
+
+        print
+        node_version=$(node -v)
+        node_version_length=${#node_version}
+        print Node.js ${node_version[2,node_version_length]}
+        print npm $(npm -v)
+
+        print
+        java -version
+    fi
+
+    #Docker
+    if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
+        print
+        print "${YELLOW}Docker"
+        print "_________________${NOCOLOR}"
+        docker version
+    fi
+
+    print
 #
 # YouTube: download a video thumbnail
 #
