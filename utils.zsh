@@ -699,8 +699,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Operating System
         if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Operating System\n"
-            data="${data}________________${NOFORMAT}\n"
+            data="${data}${YELLOW}------------------\n"
+            data="${data} Operating System \n"
+            data="${data}------------------${NOFORMAT}\n"
             data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
         fi
 
@@ -709,8 +710,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             if [[ $(which speedtest-cli | grep "not found" ) ]] ; then
                 installApp "speedtest-cli" "https://github.com/sivel/speedtest-cli"
             else
-                data="${data}${YELLOW}Internet Speed\n"
-                data="${data}________________${NOFORMAT}\n"
+                data="${data}${YELLOW}----------------\n"
+                data="${data} Internet Speed \n"
+                data="${data}----------------${NOFORMAT}\n"
 
                 data="${data}$(speedtest-cli --secure --simple)\n\n"
             fi
@@ -718,8 +720,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Browsers
         if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Browsers\n"
-            data="${data}________${NOFORMAT}\n"
+            data="${data}${YELLOW}----------\n"
+            data="${data} Browsers \n"
+            data="${data}----------${NOFORMAT}\n"
 
             if [[ -d "/Applications/Brave Browser.app" ]] ; then
                 data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
@@ -746,16 +749,18 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Display(s)
         if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Displays\n"
-            data="${data}________${NOFORMAT}\n"
+            data="${data}${YELLOW}---------\n"
+            data="${data} Displays \n"
+            data="${data}---------${NOFORMAT}\n"
             resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
             data="${data}${resolutions:gs/          /}\n\n"
         fi
 
         #Terminal
         if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Terminal\n"
-            data="${data}________${NOFORMAT}\n"
+            data="${data}${YELLOW}----------\n"
+            data="${data} Terminal \n"
+            data="${data}----------${NOFORMAT}\n"
 
             if [[ -d "/Applications/iTerm.app" ]] ; then
                 data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
@@ -768,8 +773,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #SDKs
         if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}SDKS\n"
-            data="${data}_________________${NOFORMAT}\n"
+            data="${data}${YELLOW}------\n"
+            data="${data} SDKs \n"
+            data="${data}------${NOFORMAT}\n"
 
             #.NET Core
             data="${data}.NET Core $(dotnet --version)\n\n"
@@ -813,8 +819,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Docker
         if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Docker\n"
-            data="${data}_________________${NOFORMAT}\n"
+            data="${data}${YELLOW}--------\n"
+            data="${data} Docker \n"
+            data="${data}--------${NOFORMAT}\n"
 
             if [[ $(docker version 2>&1 | grep "Cannot connect to the Docker daemon") ]] ; then
                 data="${data}Docker Desktop isn't running: start the app to get this information.\n\n"
@@ -825,8 +832,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Clouds CLIs
         if [[ ${selectedInfo[(ie)Clouds CLIs]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Clouds CLIs\n"
-            data="${data}_________________${NOFORMAT}\n"
+            data="${data}${YELLOW}-------------\n"
+            data="${data} Clouds CLIs \n"
+            data="${data}-------------${NOFORMAT}\n"
 
             #AWS
             data="${data}AWS $(aws --version | sed -E 's/aws-cli\/(.*) Python.*/\1/g')\n"
@@ -849,8 +857,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #IDEs
         if [[ ${selectedInfo[(ie)IDEs]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}IDEs\n"
-            data="${data}_________________${NOFORMAT}\n"
+            data="${data}${YELLOW}------\n"
+            data="${data} IDEs \n"
+            data="${data}------${NOFORMAT}\n"
 
             #VIM
             data="${data}VIM $(vi --version | head -n 1 | sed -E 's/VIM - Vi IMproved (.*) \(.*/\1/g')\n"
@@ -861,8 +870,9 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
 
         #Visual Studio Extensions
         if [[ ${selectedInfo[(ie)Visual Studio Extensions]} -le ${#selectedInfo} ]] ; then
-            data="${data}${YELLOW}Visual Studio Extensions\n"
-            data="${data}_________________${NOFORMAT}\n"
+            data="${data}${YELLOW}-------------------------------\n"
+            data="${data} Visual Studio Code Extensions \n"
+            data="${data}-------------------------------${NOFORMAT}\n"
 
             data="${data}$(code --list-extensions --show-versions)"
         fi
