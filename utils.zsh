@@ -608,7 +608,7 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             installApp "jq" "https://github.com/jqlang/jq"
     else
 
-        local info=("OS" "Browsers" "Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs")
+        local info=("OS" "Browsers" "Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs" "IDEs")
 
         local command="gum choose"
 
@@ -766,7 +766,19 @@ elif [[ "$tooling" == *"System"* && "$action" == *"Get information"* ]] ; then
             data="${data}$(gcloud --version | head -n 1 | sed -E 's/ SDK//g')\n"
 
             #Vultr
-            data="${data}$(vultr-cli version | sed -E 's/-cli v/ /g')"
+            data="${data}$(vultr-cli version | sed -E 's/-cli v/ /g')\n\n"
+        fi
+
+        #IDEs
+        if [[ ${selectedInfo[(ie)IDEs]} -le ${#selectedInfo} ]] ; then
+            data="${data}${YELLOW}IDEs\n"
+            data="${data}_________________${NOCOLOR}\n"
+
+            #VIM
+            data="${data}VIM $(vi --version | head -n 1 | sed -E 's/VIM - Vi IMproved (.*) \(.*/\1/g')\n"
+
+            #Visual Studio Code
+            data="${data}Visual Studio Code $(code --version | head -n 1)"
         fi
 
         # Display the system information
