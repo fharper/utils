@@ -16,7 +16,6 @@
 # Known issues:
 # - If no cluster configuration available to kubectl, let the user know
 # - Add utils to compress videos --- ffmpeg -i "$f" -c:v libx264 -crf 18 -preset veryslow -c:a copy "${f/%.backup.mp4/.mp4}"
-# - Add utils to check video quality between two videos (see end of script)
 #
 ##################################################################
 
@@ -149,6 +148,7 @@ gum format -- "What tooling do you want to use utils for?"
 tooling=$(gum choose --height=20 --cursor="" \
     "  ﹥ Any File" \
     "  ﹥ Any Image" \
+    "  ﹥ Any Video" \
     "  ﹥ Apple" \
     "  ﹥ GitHub" \
     "  ﹥ HTTP" \
@@ -174,6 +174,14 @@ elif [[ "$tooling" == *"Any Image"* ]] ; then
     gum format -- "What do you to do with the image?"
     action=$(gum choose --height=20 --cursor="" \
         "  ﹥  Compress (lossless)" \
+        "  ↵ Go back" \
+    )
+
+# Any Videos Submenu
+elif [[ "$tooling" == *"Any Video"* ]] ; then
+    gum format -- "What do you to do with the video?"
+    action=$(gum choose --height=20 --cursor="" \
+        "  ﹥  Check quality difference" \
         "  ↵ Go back" \
     )
 
@@ -302,6 +310,35 @@ elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ;
             # Move back the image
             mv "$folder$file" .
             rm -rf "$folder"
+        else
+            error "No file was selected."
+        fi
+    fi
+
+#
+# Any Video: Check quality difference
+#
+elif [[ "$tooling" == *"Any Video"* && "$action" == *"Check quality difference"* ]] ; then
+
+    # ffprobe is also installed with ffmpeg
+    if [[ $(which ffmpeg | grep "not found" ) ]] ; then
+        installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
+    else
+        local firstFile=$(getFile "first video" ".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt")
+
+        if [[ "$firstFile" ]] ; then
+            local secondFile=$(getFile "second video" ".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt")
+
+            if [[ "$secondFile" ]] ; then
+                ffmpeg -i "$firstFile" -i "$secondFile" -filter_complex "blend=all_mode=difference" -c:v libx264 -crf 18 -c:a copy video-difference.mp4
+
+                local confirmation=$(gum confirm "The differences are highlighted in video-difference.mp4 (green = same). Want to watch the result?" && print "true" || print "false")
+                if [[ $confirmation == "true" ]] ; then
+                    open video-difference.mp4
+                fi
+            else
+                error "No file was selected."
+            fi
         else
             error "No file was selected."
         fi
@@ -868,10 +905,3 @@ done
     say "You have been the one for me"
     print "\n"
     exit
-
-#
-# file1=$1
-# file2=$2
-# resolution=`ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of csv=s=x:p=0 "$file1"`
-# resolutions=(${resolution//x/ })
-# ffmpeg -r 24 -i "$file1" -r 24 -i "$file2" -lavfi "[0:v]setpts=PTS-STARTPTS[reference]; [1:v]scale="${resolutions[0]}":"${resolutions[1]}":flags=bicubic,setpts=PTS-STARTPTS[distorted]; [distorted][reference]libvmaf=log_fmt=xml:log_path=/dev/stdout:model_path=/usr/local/share/model/vmaf_v0.6.1.pkl" -f null -
