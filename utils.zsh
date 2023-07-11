@@ -997,5 +997,3 @@ done
     say "Goodbye my friend"
     say "You have been the one"
     say "You have been the one for me"
-    print "\n"
-    exit
