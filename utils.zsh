@@ -13,18 +13,18 @@
 # Configurations #
 ##################
 # https://github.com/short-pixel-optimizer/shortpixel-php
-shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/"
+local shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/"
 
 #############
 # Constants #
 #############
-github_api="https://api.github.com"
-videos_extensions=".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt"
-images_extensions=".png|.jpeg|.jpg|.gif|.bmp|.tiff"
-YELLOW="\033[1;93m"
-RED="\033[0;31m"
-NOFORMAT="\033[0m"
-BOLD="\033[1m"
+local github_api="https://api.github.com"
+local videos_extensions=".mp4|.avi|.mov|.m4p|.m4v|.webm|.mpg|.mp2|.mpeg|.mpe|.mpv|.ogg|.wmv|.qt"
+local images_extensions=".png|.jpeg|.jpg|.gif|.bmp|.tiff"
+local YELLOW="\033[1;93m"
+local RED="\033[0;31m"
+local NOFORMAT="\033[0m"
+local BOLD="\033[1m"
 
 #############
 # Functions #
@@ -110,7 +110,7 @@ function isPdfProtected {
 }
 
 function stringIndex() {
-  x="${1%%$2*}"
+  local x="${1%%$2*}"
   [[ "$x" = "$1" ]] && return -1 || return "${#x}"
 }
 
@@ -138,7 +138,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 #
 local action=""
 gum format -- "What tooling do you want to use utils for?"
-tooling=$(gum choose --height=20 --cursor="" \
+local tooling=$(gum choose --height=20 --cursor="" \
     "  ﹥ Any File" \
     "  ﹥ Any Image" \
     "  ﹥ Any Video" \
@@ -364,7 +364,7 @@ elif [[ "$tooling" == *"Any Video"* ]] ; then
                 done
 
                 gum format -- "Which video format output?"
-                format=$(eval "$command")
+                local format=$(eval "$command")
 
                 if [[ "$format" ]] ; then
                     local filename="${file%.*}"
@@ -393,9 +393,9 @@ elif [[ "$tooling" == *"Apple"* ]] ; then
         if [[ $(which curl | grep "not found" ) ]] ; then
             installApp "curl" "https://github.com/curl/curl"
         else
-            url=$(curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g')
-            file=$(print $url | sed -E 's/^.*\/(.*ipsw)/\1/g')
-            version=$(print $file | sed -E 's/.*_(.*)_.*_.*/\1/g')
+            local url=$(curl -s https://mesu.apple.com/assets/macos/com_apple_macOSIPSW/com_apple_macOSIPSW.xml | grep ipsw | tail -1 | sed -r 's/\t+<string>//g' | sed 's/<\/string>//g')
+            local file=$(print $url | sed -E 's/^.*\/(.*ipsw)/\1/g')
+            local version=$(print $file | sed -E 's/.*_(.*)_.*_.*/\1/g')
             print "Downloading macOS version $version\n"
             curl "$url" -o "$file"
         fi
@@ -821,7 +821,7 @@ elif [[ "$tooling" == *"System"* ]] ; then
                 data="${data}${YELLOW}---------\n"
                 data="${data} Displays \n"
                 data="${data}---------${NOFORMAT}\n"
-                resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
+                local resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
                 data="${data}${resolutions:gs/          /}\n\n"
             fi
 
@@ -859,8 +859,8 @@ elif [[ "$tooling" == *"System"* ]] ; then
                 data="${data}Java $(java -version 2>&1 | head -n 1 | sed -E 's/openjdk version \"(.*)\".*/\1/g')\n\n"
 
                 #Node.js
-                node_version=$(node --version)
-                node_version_length=${#node_version}
+                local node_version=$(node --version)
+                local node_version_length=${#node_version}
                 data="${data}Node.js ${node_version[2,node_version_length]}\n"
                 data="${data}npm $(npm --version)\n\n"
 
@@ -873,8 +873,8 @@ elif [[ "$tooling" == *"System"* ]] ; then
 
                 #Python
                 data="${data}$(python --version)\n"
-                pip_version=$(pip --version)
-                pip_version_to= stringIndex $pip_version from
+                local pip_version=$(pip --version)
+                local pip_version_to= stringIndex $pip_version from
                 data="${data}${pip_version[1,10]}\n\n"
 
                 #Ruby
@@ -981,7 +981,7 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     local video=$(gum input --placeholder "https://www.youtube.com/watch?v=-8pX4ayi_XY")
 
     if [[ $video ]] ; then
-        id=$(print "$video" | sed 's/.*v=//g')
+        local id=$(print "$video" | sed 's/.*v=//g')
         curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
     else
         error "No video URL was entered."
