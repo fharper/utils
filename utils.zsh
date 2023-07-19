@@ -458,6 +458,7 @@ elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protect
         if [[ $site ]] ; then
             print ""
             curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || print "Nope"
+            print ""
         else
             error "No site was entered."
         fi
