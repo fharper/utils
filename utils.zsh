@@ -516,7 +516,11 @@ elif [[ "$tooling" == *"PDF"* ]] ; then
             if [[ $file ]] ; then
                 print ""
                 local filename=$(basename "$file" .pdf)
-                gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename-compressed.pdf"  "$file"
+                filename="$filename-compressed.pdf"
+
+                gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename"  "$file"
+
+                print "Compressed PDF: ${YELLOW}$filename${NOFORMAT}\n"
             else
                 error "No file selected."
             fi
