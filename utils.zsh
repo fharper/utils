@@ -440,7 +440,7 @@ elif [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; t
 
     if [[ $username ]] ; then
         print ""
-        curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq '.name, .email, .blog' | tr -d '"' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq '.[] .url' | tr -d '"'
+        curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq -r '.name, .email, .blog' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq -r '.[] .url'
     else
         error "No username was entered."
     fi
