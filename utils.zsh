@@ -993,8 +993,10 @@ elif [[ "$tooling" == *"YouTube"* && "$action" == *"Download a video thumbnail"*
     local video=$(gum input --placeholder "https://www.youtube.com/watch?v=-8pX4ayi_XY")
 
     if [[ $video ]] ; then
+        clearLastLine
         local id=$(print "$video" | sed 's/.*v=//g')
-        curl "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
+        curl -s "https://img.youtube.com/vi/$id/maxresdefault.jpg" > youtube_video_thumbnail.jpg
+        print "\nThe thumbnail was save to ${YELLOW}youtube_video_thumbnail.jpg${NOFORMAT}\n"
     else
         error "No video URL was entered."
     fi
