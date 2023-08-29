@@ -773,10 +773,12 @@ elif [[ "$tooling" == *"System"* ]] ; then
 
             #Operating System
             if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
+                codename=$(sed -nE '/SOFTWARE LICENSE AGREEMENT FOR/s/.*([A-Za-z]+ ){5}|\\$//gp' /System/Library/CoreServices/Setup\ Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf)
+
                 data="${data}${YELLOW}------------------\n"
                 data="${data} Operating System \n"
                 data="${data}------------------${NOFORMAT}\n"
-                data="${data}$(sw_vers -productName) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
+                data="${data}$(sw_vers -productName) ($codename) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
             fi
 
             #Internet Speed
