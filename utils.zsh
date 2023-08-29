@@ -1007,7 +1007,8 @@ done
 #
 # Quitting
 #
-    say "Goodbye my lover"
-    say "Goodbye my friend"
-    say "You have been the one"
-    say "You have been the one for me"
+echo ""
+say "Goodbye my lover"
+say "Goodbye my friend"
+say "You have been the one"
+say "You have been the one for me"
