@@ -254,7 +254,7 @@ elif [[ "$tooling" == *"YouTube"* ]] ; then
         "  ↵ Go back" \
     )
 
-# If empty, Ctrl + C was selected (for whatever I cannot trap SIGINT)
+# If empty, Ctrl + C was selected (for whatever reason I cannot trap SIGINT)
 else
     tooling="EXIT"
 fi
