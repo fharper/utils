@@ -743,7 +743,7 @@ elif [[ "$tooling" == *"System"* ]] ; then
         else
 
             local info=("OS" "Browsers" "Internet Speed")
-            local infoUnselected=("Displays" "Terminal" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
+            local infoUnselected=("Displays" "Terminal & Shell" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
 
             local command="gum choose"
 
@@ -830,19 +830,26 @@ elif [[ "$tooling" == *"System"* ]] ; then
                 data="${data}${resolutions:gs/          /}\n\n"
             fi
 
-            #Terminal
-            if [[ ${selectedInfo[(ie)Terminal]} -le ${#selectedInfo} ]] ; then
-                data="${data}${YELLOW}----------\n"
-                data="${data} Terminal \n"
-                data="${data}----------${NOFORMAT}\n"
+            #Terminal & Shell
+            if [[ ${selectedInfo[(ie)Terminal & Shell]} -le ${#selectedInfo} ]] ; then
+                data="${data}${YELLOW}------------------\n"
+                data="${data} Terminal & Shell \n"
+                data="${data}------------------${NOFORMAT}\n"
 
                 if [[ -d "/Applications/iTerm.app" ]] ; then
                     data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
                 fi
 
-                data="${data}$(zsh --version)\n"
-                source ~/.zshrc
-                data="${data}OMZ (Oh My Zsh): $(omz version) with $(echo $ZSH_THEME) theme\n\n"
+                local shell=$(sudo lsof -nP -p "$(ps -p "$$" -o ppid=)" | awk 'NR==3 {print $NF; exit}' | sed 's/.*\/\([^/]*\)$/\1/');
+                data="${data}Shell: $shell"
+
+                if [[ "$shell" == "zsh" ]] ; then
+                    data="${data}$(zsh --version)\n"
+                    source ~/.zshrc
+                    data="${data}OMZ (Oh My Zsh): $(omz version)"
+                fi
+
+                data="${data}\n\n"
             fi
 
             #SDKs
