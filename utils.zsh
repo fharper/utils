@@ -902,9 +902,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                     #Python
                     data="${data}$(python --version)\n"
-                    local pip_version=$(pip --version)
-                    local pip_version_to= stringIndex $pip_version from
-                    data="${data}${pip_version[1,10]}\n\n"
+                    data="${data}$(pip --version | sed 's/\(.*\) from.*/\1/')\n\n"
 
                     #Ruby
                     data="${data}Ruby$(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
