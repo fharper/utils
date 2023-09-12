@@ -741,9 +741,12 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         #
         if [[ "$action" == *"Get information"* ]] ; then
             if [[ $(which jq | grep "not found" ) ]] ; then
-                    installApp "jq" "https://github.com/jqlang/jq"
-            else
+                installApp "jq" "https://github.com/jqlang/jq"
 
+            elif [[ $(which cws | grep "not found" ) ]] ; then
+                installApp "cws" "https://github.com/vladimyr/chrome-webstore-cli"
+
+            else
                 local info=("OS" "Browsers" "Internet Connection")
                 local infoUnselected=("Displays" "Terminal & Shell" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
 
@@ -840,7 +843,45 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     fi
 
                     if [[ -d "/Applications/Google Chrome.app" ]] ; then
+                        SAVEIFS=$IFS
+                        IFS=$'\n'
+
                         data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | xargs)\n"
+
+                        data="${data}  Extensions:"
+                        extensions_manifests=($(fd manifest.json ~/Library/Application\ Support/Google/Chrome/Profile\ 1/Extensions/))
+
+                        local extensions=""
+                        for file in "$extensions_manifests[@]"; do
+                            local id=$(echo $file | sed 's/.*Extensions\/\(.*\)\/.*\/manifest.json/\1/')
+
+                            local name=""
+
+                            # https://www.reddit.com/r/chrome/comments/w9xpzb/comment/ihyc54i/
+                            if [[ "$id" == "nmmhkkegccagdldgiimedpiccmgmieda" ]] ; then
+                                name="Google Wallet" # Hidden Chrome extension
+                            else
+                                name=$(jq -r '.short_name' "$file")
+
+                                # Some don't have short_name in the manifest
+                                if [[ "$name" == "null" || "$name" == *"__MSG"* ]] ; then
+                                    name=$(jq -r '.name' "$file")
+
+                                    # Some don't have name either
+                                    if [[ "$name" == "null" || "$name" == *"__MSG"* ]] ; then
+                                        name=$(cws info "$id" --json | jq -r '.name')
+                                    fi
+                                fi
+                            fi
+
+                            local version=$(echo $file | sed 's/.*Extensions\/.*\/\(.*\)_0\/manifest.json/\1/')
+                            extensions="${extensions}    $name $version\n"
+                        done
+
+                        extensions=$(echo $extensions | sort -f)
+                        data="${data}  $extensions\n"
+
+                        IFS=$SAVEIFS
                     fi
 
                     if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
