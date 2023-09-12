@@ -855,16 +855,16 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     data="${data}------------------${NOFORMAT}\n"
 
                     if [[ -d "/Applications/iTerm.app" ]] ; then
-                        data="${data}iTerm2 $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
+                        data="${data}iTerm2: $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
                     fi
 
                     local shell=$(sudo lsof -nP -p "$(ps -p "$$" -o ppid=)" | awk 'NR==3 {print $NF; exit}' | sed 's/.*\/\([^/]*\)$/\1/');
                     data="${data}Shell: $shell"
 
                     if [[ "$shell" == "zsh" ]] ; then
-                        data="${data}$(zsh --version)\n"
+                        data="${data}$(zsh --version | sed 's/zsh \(.*\) (.*/\1/')\n"
                         source ~/.zshrc
-                        data="${data}OMZ (Oh My Zsh): $(omz version)"
+                        data="${data}Oh My Zsh: $(omz version)"
                     fi
 
                     data="${data}\n\n"
