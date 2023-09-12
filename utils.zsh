@@ -772,9 +772,14 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 print "\nLoading the system information, please wait..."
                 local data=""
+                local steps=${#selectedInfo[@]}
+                local step=1
 
                 #Operating System
                 if [[ ${selectedInfo[(ie)OS]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}operating system${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     codename=$(sed -nE '/SOFTWARE LICENSE AGREEMENT FOR/s/.*([A-Za-z]+ ){5}|\\$//gp' /System/Library/CoreServices/Setup\ Assistant.app/Contents/Resources/en.lproj/OSXSoftwareLicense.rtf)
 
                     data="${data}${YELLOW}------------------\n"
@@ -785,6 +790,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Internet Connection
                 if [[ ${selectedInfo[(ie)Internet Connection]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}internet connection${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     if [[ $(which speedtest-cli | grep "not found" ) ]] ; then
                         installApp "speedtest-cli" "https://github.com/sivel/speedtest-cli"
                     else
@@ -812,6 +820,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Browsers
                 if [[ ${selectedInfo[(ie)Browsers]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}browser(s)${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}----------\n"
                     data="${data} Browsers \n"
                     data="${data}----------${NOFORMAT}\n"
@@ -841,6 +852,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Display(s)
                 if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}display(s)${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}----------\n"
                     data="${data} Displays \n"
                     data="${data}----------${NOFORMAT}\n"
@@ -850,6 +864,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Terminal & Shell
                 if [[ ${selectedInfo[(ie)Terminal & Shell]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}terminal & shell${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}------------------\n"
                     data="${data} Terminal & Shell \n"
                     data="${data}------------------${NOFORMAT}\n"
@@ -879,6 +896,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #SDKs
                 if [[ ${selectedInfo[(ie)SDKs]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}SDK(s)${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}------\n"
                     data="${data} SDKs \n"
                     data="${data}------${NOFORMAT}\n"
@@ -923,6 +943,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Docker
                 if [[ ${selectedInfo[(ie)Docker]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}Docker${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}--------\n"
                     data="${data} Docker \n"
                     data="${data}--------${NOFORMAT}\n"
@@ -936,6 +959,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Clouds CLIs
                 if [[ ${selectedInfo[(ie)Clouds CLIs]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}cloud CLI(s)${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}-------------\n"
                     data="${data} Clouds CLIs \n"
                     data="${data}-------------${NOFORMAT}\n"
@@ -961,6 +987,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #IDEs
                 if [[ ${selectedInfo[(ie)IDEs]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}IDE(s)${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}------\n"
                     data="${data} IDEs \n"
                     data="${data}------${NOFORMAT}\n"
@@ -974,6 +1003,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Visual Studio Extensions
                 if [[ ${selectedInfo[(ie)Visual Studio Extensions]} -le ${#selectedInfo} ]] ; then
+                    print "Loading the ${YELLOW}Visual Studio extension(s)${NOFORMAT} information [$step/$steps]"
+                    ((step++))
+
                     data="${data}${YELLOW}-------------------------------\n"
                     data="${data} Visual Studio Code Extensions \n"
                     data="${data}-------------------------------${NOFORMAT}\n"
@@ -983,7 +1015,11 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 # Display the system information
                 clearLastLine
-                print "\n$data\n"
+                while [[ $step -ne 0 ]] ; do
+                    clearLastLine
+                    ((step--))
+                done
+                print "\n$data"
                 print "\n${ITALIC}it was copied to your clipboard${NOFORMAT}\n"
 
                 #Removing formating before sending to clipboard
