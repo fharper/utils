@@ -273,7 +273,8 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
         if [[ $file ]] ; then
             local type=$(file --mime-type -b "$file")
-            print "The mime type is ${YELLOW}$type${NOFORMAT}\n"
+
+            print "\nThe mime type is ${YELLOW}$type${NOFORMAT}\n"
         else
             error "No file selected."
         fi
