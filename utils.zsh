@@ -918,27 +918,22 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     #Node.js
                     local node_version=$(node --version)
                     local node_version_length=${#node_version}
-                    data="${data}Node.js ${node_version[2,node_version_length]}\n"
-                    data="${data}npm $(npm --version)\n\n"
+                    data="${data}Node.js ${node_version[2,node_version_length]} with npm $(npm --version)\n\n"
 
                     #Perl
                     data="${data}Perl $(perl --version | sed '2!d' | sed -E 's/.*\(v(.*)\).*/\1/g')\n\n"
 
                     #PHP
-                    data="${data}$(php --version | head -n 1 | sed -E 's/ \(cli\).*//g')\n"
-                    data="${data}Composer$(composer --version | sed -E 's/Composer version (.*) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{1,}/\1/g')\n\n"
+                    data="${data}$(php --version | head -n 1 | sed -E 's/ \(cli\).*//g') with Composer $(composer --version | sed -E 's/Composer version (.*) [0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{1,}/\1/g')\n\n"
 
                     #Python
-                    data="${data}$(python --version)\n"
-                    data="${data}$(pip --version | sed 's/\(.*\) from.*/\1/')\n\n"
+                    data="${data}$(python --version) with $(pip --version | sed 's/\(.*\) from.*/\1/')\n\n"
 
                     #Ruby
-                    data="${data}Ruby $(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
-                    data="${data}gem $(gem --version| sed -E 's/gem/Gem/g')\n\n"
+                    data="${data}Ruby $(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g') with gem $(gem --version| sed -E 's/gem/Gem/g')\n\n"
 
                     #Rust
-                    data="${data}Rust $(rustc --version | sed -E 's/rustc (.*) \(.*/\1/g')\n"
-                    data="${data}Cargo $(cargo --version | sed -E 's/cargo (.*) \(.*/\1/g')\n\n"
+                    data="${data}Rust $(rustc --version | sed -E 's/rustc (.*) \(.*/\1/g') with Cargo $(cargo --version | sed -E 's/cargo (.*) \(.*/\1/g')\n\n"
                 fi
 
                 #Docker
