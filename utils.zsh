@@ -858,7 +858,14 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                         data="${data}iTerm2: $(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" /Applications/iTerm.app/Contents/Info.plist)\n"
                     fi
 
+                    local sudo_needed=$(sudo -n true 2>/dev/null | grep "")
                     local shell=$(sudo lsof -nP -p "$(ps -p "$$" -o ppid=)" | awk 'NR==3 {print $NF; exit}' | sed 's/.*\/\([^/]*\)$/\1/');
+
+                    # Clearing the sudo prompt
+                    if [[ -z "$sudo_needed" ]] ; then
+                        clearLastLine
+                    fi
+
                     data="${data}Shell: $shell"
 
                     if [[ "$shell" == "zsh" ]] ; then
