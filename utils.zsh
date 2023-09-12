@@ -803,6 +803,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                             ((i++))
                         done
                         data="${data}Signal Strength: $((signal_sum/i)) \n"
+
+                        # Packet loss
+                        data="${data}Packet loss: $(ping -q -c 50 1.1.1.1 | grep 'packet loss' | sed 's/.*received, \(.*\) packet loss/\1/' | sed 's/^0.0%/None/')\n\n"
                     fi
                 fi
 
