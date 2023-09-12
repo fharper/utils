@@ -25,6 +25,7 @@ local YELLOW="\033[1;93m"
 local RED="\033[0;31m"
 local NOFORMAT="\033[0m"
 local BOLD="\033[1m"
+local ITALIC="\033[3m"
 
 #############
 # Functions #
@@ -976,6 +977,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 # Display the system information
                 clearLastLine
                 print "\n$data\n"
+                print "\n${ITALIC}it was copied to your clipboard${NOFORMAT}\n"
 
                 #Removing formating
                 data=${data//${YELLOW}/}
