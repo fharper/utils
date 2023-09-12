@@ -970,7 +970,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 data=${data//${NOFORMAT}/}
 
                 # Copy it to clipboard
-                print "$data" | pbcopy
+                print -- "$data" | pbcopy
             fi
         elif [[ "$action" == *"Find port usage"* ]] ; then
             if [[ $(which lsof | grep "not found" ) ]] ; then
