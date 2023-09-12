@@ -905,7 +905,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     data="${data}$(pip --version | sed 's/\(.*\) from.*/\1/')\n\n"
 
                     #Ruby
-                    data="${data}Ruby$(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
+                    data="${data}Ruby $(ruby --version | sed -E 's/ruby (.*) \(.*/\1/g')\n"
                     data="${data}gem $(gem --version| sed -E 's/gem/Gem/g')\n\n"
 
                     #Rust
