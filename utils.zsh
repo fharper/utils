@@ -841,9 +841,9 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Display(s)
                 if [[ ${selectedInfo[(ie)Displays]} -le ${#selectedInfo} ]] ; then
-                    data="${data}${YELLOW}---------\n"
+                    data="${data}${YELLOW}----------\n"
                     data="${data} Displays \n"
-                    data="${data}---------${NOFORMAT}\n"
+                    data="${data}----------${NOFORMAT}\n"
                     local resolutions=$(system_profiler SPDisplaysDataType | grep Resolution)
                     data="${data}${resolutions:gs/          /}\n\n"
                 fi
