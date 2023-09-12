@@ -979,7 +979,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 print "\n$data\n"
                 print "\n${ITALIC}it was copied to your clipboard${NOFORMAT}\n"
 
-                #Removing formating
+                #Removing formating before sending to clipboard
                 data=${data//${YELLOW}/}
                 data=${data//${NOFORMAT}/}
 
