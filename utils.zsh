@@ -743,7 +743,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     installApp "jq" "https://github.com/jqlang/jq"
             else
 
-                local info=("OS" "Browsers" "Internet Speed")
+                local info=("OS" "Browsers" "Internet Connection")
                 local infoUnselected=("Displays" "Terminal & Shell" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
 
                 local command="gum choose"
@@ -782,16 +782,27 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     data="${data}$(sw_vers -productName) ($codename) $(sw_vers -productVersion) build $(sw_vers -buildVersion) on $(/usr/bin/arch)\n\n"
                 fi
 
-                #Internet Speed
-                if [[ ${selectedInfo[(ie)Internet Speed]} -le ${#selectedInfo} ]] ; then
+                #Internet Connection
+                if [[ ${selectedInfo[(ie)Internet Connection]} -le ${#selectedInfo} ]] ; then
                     if [[ $(which speedtest-cli | grep "not found" ) ]] ; then
                         installApp "speedtest-cli" "https://github.com/sivel/speedtest-cli"
                     else
-                        data="${data}${YELLOW}----------------\n"
-                        data="${data} Internet Speed \n"
-                        data="${data}----------------${NOFORMAT}\n"
+                        data="${data}${YELLOW}---------------------\n"
+                        data="${data} Internet Connection \n"
+                        data="${data}---------------------${NOFORMAT}\n"
 
-                        data="${data}$(speedtest-cli --secure --simple)\n\n"
+                        # Speed
+                        data="${data}$(speedtest-cli --secure --simple)\n"
+
+                        # Signal Strength
+                        local signal_sum=0
+                        local i=0
+                        while [[ $i -lt 50 ]] ; do
+                            ((signal_sum+=$(/System/Library/PrivateFrameworks/Apple80211.framework/Versions/Current/Resources/airport -I | grep CtlRSSI | sed -e 's/^.*: //g')))
+                            sleep 0.5
+                            ((i++))
+                        done
+                        data="${data}Signal Strength: $((signal_sum/i)) \n"
                     fi
                 fi
 
