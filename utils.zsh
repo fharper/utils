@@ -37,12 +37,21 @@ local ITALIC="\033[3m"
 # Functions #
 #############
 
+#
 # Print something with style
+#
+# @param the message to display
+#
 function say {
     gum style --foreground 93 "$1"
 }
 
-# Install missing dependency
+#
+# Install missing application (dependency for the selected feature from this script to run properly)
+#
+# @param the Homebrew formula name
+# @param the website for the application
+#
 function installApp {
     local application="$1"
     local website="$2"
@@ -72,15 +81,22 @@ function installApp {
     fi
 }
 
-#Clear last terminal line
+#
+# Clear last terminal line
+#
 function clearLastLine {
     tput cuu 1 >&2
     tput el >&2
 }
 
+#
 # Select a file from the running directory
+#
 # @param file type (Images, PDFs...)
 # @param file extension (.pdf, .png, .jpg). If multiple extensions, use ".png|.jpeg"
+#
+# Return the file selected by the user
+#
 function getFile {
     local files=$(/bin/ls | egrep "$2")
     clearLastLine #I cannot get the error output to silence!
@@ -98,13 +114,22 @@ function getFile {
     print "$file"
 }
 
-# Display error messages
+#
+# Display an error message with red formatting
+#
+# @param the error message
+#
 function error {
     print "${RED}$1${NOFORMAT}"
 }
 
+#
 # Check if PDF is protected
+#
 # @param PDF file to check
+#
+# Return the protection status
+#
 function isPdfProtected {
     local output=$(gs -dBATCH -sNODISPLAY "$1" 2>&1 | grep -o "This file requires a password")
 
