@@ -15,6 +15,12 @@
 # https://github.com/short-pixel-optimizer/shortpixel-php
 local shortpixel="/Users/fharper/Documents/code/others/shortpixel-php/"
 
+# Used for input using the checkSudo function
+# You can't output text to display in the Terminal while a subshell (with '$()') is waiting for the command output.
+# It will display only in the end, which isn't useful in the while condition I'm using.
+# See https://stackoverflow.com/a/64810239/895232
+local sudo_needed=0
+
 #############
 # Constants #
 #############
@@ -110,9 +116,22 @@ function isPdfProtected {
     print "$protection"
 }
 
-function stringIndex() {
-  local x="${1%%$2*}"
-  [[ "$x" = "$1" ]] && return -1 || return "${#x}"
+#
+# Check if the user will have to enter the password when needing root access using sudo
+#
+# @param the reason why sudo is needed
+#
+# return 0 if not needed, 1 if it is
+#
+function checkSudo {
+    sudo -n true 2>/dev/null
+    sudo_needed=$(echo $?)
+
+    if [[ $sudo_needed == 1 ]] ; then
+        print
+        gum format -- "sudo is require to $1"
+        print
+    fi
 }
 
 ##################
@@ -1074,9 +1093,24 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 if [[ $port ]] ; then
                     clearLastLine
-                    gum format -- "sudo is require to prevent some file access errors\n"
-                    sudo lsof -i tcp:"$port"
-                    print
+
+                    # Check if sudo is needed
+                    checkSudo "prevent some file access errors"
+                    local port_usage=$(sudo lsof -i tcp:"$port")
+
+                    # Clearing the sudo prompt
+                    if [[ $sudo_needed == 1 ]] ; then
+                        clearLastLine
+                        clearLastLine
+                        clearLastLine
+                    fi
+
+                    # If not in use, still show a message
+                    if [[ -z "$port_usage" ]] ; then
+                        port_usage="No application is using port $port"
+                    fi
+
+                    print "\n$port_usage\n"
                 fi
             fi
         fi
