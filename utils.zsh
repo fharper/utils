@@ -874,24 +874,34 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     data="${data} Browsers \n"
                     data="${data}----------${NOFORMAT}\n"
 
+                    # Brave
                     if [[ -d "/Applications/Brave Browser.app" ]] ; then
                         data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
                     fi
 
+                    # Chromium
                     if [[ -d "/Applications/Chromium.app" ]] ; then
                         data="${data}$(/Applications/Chromium.app/Contents/MacOS/Chromium --version | xargs)\n"
                     fi
 
+                    # Firefox
                     if [[ -d "/Applications/Firefox.app" ]] ; then
                         data="${data}$(/Applications/Firefox.app/Contents/MacOS/Firefox --version | xargs)\n"
+
+                        # Extensions
+                        data="${data}  Extensions:"
+                        local extensions=$(cat ~/Library/Application\ Support/Firefox/Profiles/*.default*/addons.json | jq -r '.addons[]' | jq  -r '["   ", .name, .version] | @sh' | tr -d "'")
+                        data="${data}\n$extensions\n"
                     fi
 
+                    # Google Chrome
                     if [[ -d "/Applications/Google Chrome.app" ]] ; then
                         SAVEIFS=$IFS
                         IFS=$'\n'
 
                         data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | xargs)\n"
 
+                        # Extensions
                         data="${data}  Extensions:"
                         extensions_manifests=($(fd manifest.json ~/Library/Application\ Support/Google/Chrome/Profile\ 1/Extensions/))
 
@@ -928,6 +938,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                         IFS=$SAVEIFS
                     fi
 
+                    # Microsoft Edge
                     if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
                         data="${data}$(/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version | xargs)\n"
                     fi
