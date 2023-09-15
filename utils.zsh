@@ -159,6 +159,29 @@ function checkSudo {
     fi
 }
 
+#
+# Get the file name without the extension
+#
+# @param file
+#
+# return file name
+#
+function getFilename {
+    echo "${1%.*}"
+}
+
+#
+# Get the file extension
+#
+# @param file
+#
+# return file extension
+#
+function getFileExtension {
+    echo "${1##*.}"
+}
+
+
 ##################
 # Gum Dependency #
 ##################
@@ -221,6 +244,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         action=$(gum choose --height=20 --cursor="" \
             "  ﹥  Check quality difference" \
             "  ﹥  Convert (lossless)" \
+            "  ﹥  Extract audio" \
             "  ↵ Go back" \
         )
 
@@ -337,8 +361,8 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
             local file=$(getFile "file" "$images_extensions")
 
             if [[ $file ]] ; then
-                local filename="${file%.*}"
-                local extension="${file##*.}"
+                local filename=$(getFilename "$file")
+                local extension=$(getFileExtension "$file")
 
                 # Since ShortPixel only optimize a folder, we need to move the file to its own folder
                 local folder="/tmp/shortpixel-$RANDOM/"
@@ -413,7 +437,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     local format=$(eval "$command")
 
                     if [[ "$format" ]] ; then
-                        local filename="${file%.*}"
+                        local filename=$(getFilename "$file")
 
                         print
                         ffmpeg -loglevel error -stats -i "$file" -crf 18 -preset veryslow -c:a copy "$filename-output.$format"
@@ -425,6 +449,25 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     error "No file selected."
                 fi
             fi
+
+        #
+        # Extract audio
+        #
+        elif [[ "$action" == *"Extract audio"* ]] ; then
+                if [[ $(which ffmpeg | grep "not found" ) ]] ; then
+                installApp "ffmpeg" "https://github.com/FFmpeg/FFmpeg"
+            else
+                local file=$(getFile "video" "$videos_extensions")
+
+                if [[ "$file" ]] ; then
+                    local filename=$(getFilename "$file")
+                    local audioFile="$filename.aac"
+                    ffmpeg -i "$file" -vn -acodec copy "$audioFile"
+
+                    print "\nExtracted audio: ${YELLOW}$audioFile${NOFORMAT}\n"
+                fi
+            fi
+
         fi
 
     #
