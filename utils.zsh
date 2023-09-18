@@ -919,22 +919,12 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                     # Brave
                     if [[ -d "/Applications/Brave Browser.app" ]] ; then
-                        data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version | xargs)\n"
+                        data="${data}$(/Applications/Brave\ Browser.app/Contents/MacOS/Brave\ Browser --version)\n"
                     fi
 
                     # Chromium
                     if [[ -d "/Applications/Chromium.app" ]] ; then
-                        data="${data}$(/Applications/Chromium.app/Contents/MacOS/Chromium --version | xargs)\n"
-                    fi
-
-                    # Firefox
-                    if [[ -d "/Applications/Firefox.app" ]] ; then
-                        data="${data}$(/Applications/Firefox.app/Contents/MacOS/Firefox --version | xargs)\n"
-
-                        # Extensions
-                        data="${data}  Extensions:"
-                        local extensions=$(cat ~/Library/Application\ Support/Firefox/Profiles/*.default*/addons.json | jq -r '.addons[]' | jq  -r '["   ", .name, .version] | @sh' | tr -d "'")
-                        data="${data}\n$extensions\n"
+                        data="${data}$(/Applications/Chromium.app/Contents/MacOS/Chromium --version)\n"
                     fi
 
                     # Google Chrome
@@ -942,7 +932,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                         SAVEIFS=$IFS
                         IFS=$'\n'
 
-                        data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version | xargs)\n"
+                        data="${data}$(/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version)\n"
 
                         # Extensions
                         data="${data}  Extensions:"
@@ -983,7 +973,32 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                     # Microsoft Edge
                     if [[ -d "/Applications/Microsoft Edge.app" ]] ; then
-                        data="${data}$(/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version | xargs)\n"
+                        data="${data}$(/Applications/Microsoft\ Edge.app/Contents/MacOS/Microsoft\ Edge --version)\n"
+                    fi
+
+                    # Mozilla Firefox
+                    if [[ -d "/Applications/Firefox.app" ]] ; then
+                        data="${data}$(/Applications/Firefox.app/Contents/MacOS/Firefox --version)\n"
+
+                        # Extensions
+                        data="${data}  Extensions:"
+                        local extensions=$(cat ~/Library/Application\ Support/Firefox/Profiles/*.default*/addons.json | jq -r '.addons[]' | jq  -r '["   ", .name, .version] | @sh' | tr -d "'")
+                        data="${data}\n$extensions\n"
+                    fi
+
+                    # Opera
+                    if [[ -d "/Applications/Opera.app" ]] ; then
+                        data="${data}Opera $(/Applications/Opera.app/Contents/MacOS/Opera --version)\n"
+                    fi
+
+                    # Opera GX
+                    if [[ -d "/Applications/Opera GX.app" ]] ; then
+                        data="${data}Opera GX $(/Applications/Opera\ GX.app/Contents/MacOS/Opera --version)\n"
+                    fi
+
+                    # Safari
+                    if [[ -d "/Applications/Safari.app" ]] ; then
+                        data="${data}Safari $(/usr/libexec/PlistBuddy -c "print :CFBundleShortVersionString" /Applications/Safari.app/Contents/Info.plist) ($(/usr/libexec/PlistBuddy -c "print :CFBundleVersion" /Applications/Safari.app/Contents/Info.plist))\n"
                     fi
 
                     data="${data}\n"
