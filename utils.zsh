@@ -296,6 +296,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
             "  > List embedded fonts" \
             "  > List embedded images" \
             "  > List number of pages" \
+            "  > Remove password protection" \
             "  ↵ Go back" \
         )
 
@@ -839,7 +840,37 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 fi
             fi
 
+        #
+        # Remove password protection
+        #
+        elif [[ "$action" == *"Remove password protection"* ]] ; then
+
+            if [[ $(which qpdf | grep "not found" ) ]] ; then
+                installApp "qpdf" "https://github.com/qpdf/qpdf"
+            else
+                local file=$(getFile "PDF" ".pdf")
+                local filename=$(basename "$file" .pdf)
+                local unprotected_file="$filename-unprotected.pdf"
+
+                if [[ $file ]] ; then
+
+                    gum format -- "What is the password?"
+                    local password=$(gum input --password)
+                    clearLastLine
+
+                    if [[ $password ]] ; then
+                        print ""
+                        qpdf --decrypt --password="$password" "$file" "$unprotected_file"
+                        print "The unprotected PDF file is ${YELLOW}$unprotected_file${NOFORMAT}\n"
+                    else
+                        error "No password entered. If you lost your password, use the ${YELLOW}Crack protected${NOFORMAT} feature."
+                    fi
+                else
+                    error "No file selected."
+                fi
+            fi
         fi
+
 
     #
     # WAV: Convert to MP3
@@ -1225,6 +1256,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 print -- "$data" | pbcopy
             fi
         elif [[ "$action" == *"Find port usage"* ]] ; then
+
             if [[ $(which lsof | grep "not found" ) ]] ; then
                 installApp "lsof" "https://github.com/lsof-org/lsof"
             else
