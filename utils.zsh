@@ -120,7 +120,7 @@ function getFile {
 # @param the error message
 #
 function error {
-    print "${RED}$1${NOFORMAT}"
+    print "\n${RED}$1${NOFORMAT}\n"
 }
 
 #
