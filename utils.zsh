@@ -270,6 +270,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         gum format -- "What do you to do with HTTP?"
         action=$(gum choose --height=20 --cursor="" \
             "  > Find if website is DDoS protected" \
+            "  > Find website web server" \
             "  ↵ Go back" \
         )
 
@@ -535,21 +536,48 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         fi
 
     #
-    # HTTP: find if website is DDoS protected
+    # HTTP
     #
-    elif [[ "$tooling" == *"HTTP"* && "$action" == *"Find if website is DDoS protected"* ]] ; then
-        if [[ $(which curl | grep "not found" ) ]] ; then
-            installApp "curl" "https://github.com/curl/curl"
-        else
-            gum format -- "Which site?"
-            local site=$(gum input --placeholder "https://fred.dev")
+    elif [[ "$tooling" == *"HTTP"* ]] ; then
 
-            if [[ $site ]] ; then
-                print ""
-                curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || print "Nope"
-                print ""
+        #
+        # Find if website is DDoS protected
+        #
+        if [[ "$action" == *"Find if website is DDoS protected"* ]] ; then
+            if [[ $(which curl | grep "not found" ) ]] ; then
+                installApp "curl" "https://github.com/curl/curl"
             else
-                error "No site was entered."
+                gum format -- "Which site?"
+                local site=$(gum input --placeholder "https://fred.dev")
+                clearLastLine
+
+                if [[ $site ]] ; then
+                    print ""
+                    curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || print "Nope"
+                    print ""
+                else
+                    error "No site was entered.\n"
+                fi
+            fi
+
+        #
+        # Find website web server
+        #
+        elif [[ "$action" == *"Find website web server"* ]] ; then
+            if [[ $(which curl | grep "not found" ) ]] ; then
+                installApp "curl" "https://github.com/curl/curl"
+            else
+                gum format -- "Which site?"
+                local site=$(gum input --placeholder "https://fred.dev")
+                clearLastLine
+
+                if [[ $site ]] ; then
+                    print ""
+                    curl -sSI "$site" | sed -n 's/^S[erv]*: //p'
+                    print ""
+                else
+                    error "No site was entered.\n"
+                fi
             fi
         fi
 
