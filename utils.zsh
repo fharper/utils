@@ -290,6 +290,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
             "  > Check if protected" \
             "  > Compress (lossless)" \
             "  > Convert pages to images" \
+            "  > Convert to SVG" \
             "  > Crack protected" \
             "  > Decrypt" \
             "  > Extract embedded images" \
@@ -869,6 +870,27 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     error "No file selected."
                 fi
             fi
+
+        #
+        # Convert to SVG
+        #
+        elif [[ "$action" == *"Convert to SVG"* ]] ; then
+
+            if [[ $(which pdf2svg | grep "not found" ) ]] ; then
+                installApp "pdf2svg" "https://github.com/dawbarton/pdf2svg/"
+            else
+                local file=$(getFile "PDF" ".pdf")
+                local filename=$(basename "$file" .pdf)
+                local svg="$filename.svg"
+
+                if [[ $file ]] ; then
+                    echo
+                    gum spin --spinner line --title "Converting the PDF into a SVG file..." --  pdf2svg "$file" "$svg"
+
+                    print "The file ${YELLOW}$file${NOFORMAT} has been converted to ${YELLOW}$svg${NOFORMAT}\n"
+                fi
+            fi
+
         fi
 
 
