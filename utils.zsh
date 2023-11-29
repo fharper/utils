@@ -305,6 +305,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
     elif [[ "$tooling" == *"System"* ]] ; then
         gum format -- "What do you to do with the system?"
         action=$(gum choose --height=20 --cursor="" \
+            "  > Clean disk space" \
             "  > Get information" \
             "  > Find port usage" \
             "  ↵ Go back" \
@@ -1311,6 +1312,54 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     print "\n$port_usage\n"
                 fi
             fi
+
+        #
+        # System: Clean disk space
+        #
+        elif [[ "$action" == *"Clean disk space"* ]] ; then
+
+            # Cleaning Hombrew cache
+            if [[ $(which brew | grep -v "not found") ]] ; then
+                local confirmation=$(gum confirm "Deleting Homebrew cache, are you sure?" && print "true" || print "false")
+
+                if [[ $confirmation == "true" ]] ; then
+                    rm -rf $(brew --cache)
+                    say "Homebrew cache deleted"
+                fi
+            fi
+
+            # Cleaning npm cache
+            if [[ $(which npm | grep -v "not found") ]] ; then
+                local confirmation=$(gum confirm "Deleting npm cache, are you sure?" && print "true" || print "false")
+
+                if [[ $confirmation == "true" ]] ; then
+                    npm cache clean --force
+                    clearLastLine
+                    say "npm cache deleted"
+                fi
+            fi
+
+            # Cleaning yarn cache
+            if [[ $(which yarn | grep -v "not found") ]] ; then
+                local confirmation=$(gum confirm "Deleting yarn cache, are you sure?" && print "true" || print "false")
+
+                if [[ $confirmation == "true" ]] ; then
+                    yarn cache clean
+                    say "yarn cache deleted"
+                fi
+            fi
+
+            # Cleaning go cache
+            if [[ $(which go | grep -v "not found") ]] ; then
+                local confirmation=$(gum confirm "Deleting go cache, are you sure?" && print "true" || print "false")
+
+                if [[ $confirmation == "true" ]] ; then
+                    go clean -cache
+                    say "go cache deleted"
+                fi
+            fi
+
+            print
         fi
 
     #
