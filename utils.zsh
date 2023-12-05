@@ -652,7 +652,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     local filename=$(basename "$file" .pdf)
                     filename="$filename-compressed.pdf"
 
-                    gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename"  "$file"
+                    gum spin --spinner line --title "Compressing the PDF..." -- gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -dCompatibilityLevel=1.7 -dNOPAUSE -dQUIET -dPDFSETTINGS=/prepress -sOutputFile="$filename"  "$file"
 
                     print "Compressed PDF: ${YELLOW}$filename${NOFORMAT}\n"
                 else
