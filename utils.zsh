@@ -235,6 +235,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         gum format -- "What do you to do with the image?"
         action=$(gum choose --height=20 --cursor="" \
             "  ﹥  Compress (lossless)" \
+            "  ﹥  Convert to PDF" \
             "  ↵ Go back" \
         )
 
@@ -353,35 +354,61 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         fi
 
     #
-    # Any Image: Compress (lossless)
+    # Any Image
     #
-    elif [[ "$tooling" == *"Any Image"* && "$action" == *"Compress (lossless)"* ]] ; then
+    elif [[ "$tooling" == *"Any Image"* ]] ; then
 
-        if [[ $(which php | grep "not found" ) ]] ; then
-            installApp "php" "https://github.com/php/php-src"
-        elif [[ -z "${SHORTPIXEL_API}" ]] ; then
-            print "Please set the SHORTPIXEL_API environment variable with your ShortPixel API Key."
-        else
-            local file=$(getFile "file" "$images_extensions")
+        #
+        # Compress (lossless)
+        #
+        if [[ "$action" == *"Compress (lossless)"* ]] ; then
 
-            if [[ $file ]] ; then
-                local filename=$(getFilename "$file")
-                local extension=$(getFileExtension "$file")
-
-                # Since ShortPixel only optimize a folder, we need to move the file to its own folder
-                local folder="/tmp/shortpixel-$RANDOM/"
-                mkdir "$folder"
-                cp "$file" "$filename.backup.$extension"
-                mv "$file" "$folder"
-
-                # Optimize the image
-                php "$shortpixel"lib/cmdShortpixelOptimize.php --apiKey="$SHORTPIXEL_API" --compression=0 --clearLock --folder="$folder"
-
-                # Move back the image
-                mv "$folder$file" .
-                rm -rf "$folder"
+            if [[ $(which php | grep "not found" ) ]] ; then
+                installApp "php" "https://github.com/php/php-src"
+            elif [[ -z "${SHORTPIXEL_API}" ]] ; then
+                print "Please set the SHORTPIXEL_API environment variable with your ShortPixel API Key."
             else
-                error "No file selected."
+                local file=$(getFile "file" "$images_extensions")
+
+                if [[ $file ]] ; then
+                    local filename=$(getFilename "$file")
+                    local extension=$(getFileExtension "$file")
+
+                    # Since ShortPixel only optimize a folder, we need to move the file to its own folder
+                    local folder="/tmp/shortpixel-$RANDOM/"
+                    mkdir "$folder"
+                    cp "$file" "$filename.backup.$extension"
+                    mv "$file" "$folder"
+
+                    # Optimize the image
+                    php "$shortpixel"lib/cmdShortpixelOptimize.php --apiKey="$SHORTPIXEL_API" --compression=0 --clearLock --folder="$folder"
+
+                    # Move back the image
+                    mv "$folder$file" .
+                    rm -rf "$folder"
+                else
+                    error "No file selected."
+                fi
+            fi
+
+        #
+        # Compress (lossless)
+        #
+        elif [[ "$action" == *"Convert to PDF"* ]] ; then
+            if [[ $(which convert | grep "not found" ) ]] ; then
+                installApp "ImageMagick" "https://github.com/ImageMagick/ImageMagick"
+            else
+                local file=$(getFile "file" "$images_extensions")
+
+                if [[ $file ]] ; then
+                    local filename=$(getFilename "$file")
+                    local pdf="$filename.pdf";
+                    print
+                    gum spin --spinner line --title "Converting the image to PDF..." -- convert "$file" "$pdf"
+                    echo "Convert image: $pdf\n"
+                else
+                    error "No file selected."
+                fi
             fi
         fi
 
