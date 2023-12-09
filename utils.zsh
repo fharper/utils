@@ -405,7 +405,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     local pdf="$filename.pdf";
                     print
                     gum spin --spinner line --title "Converting the image to PDF..." -- convert "$file" "$pdf"
-                    echo "Convert image: $pdf\n"
+                    echo "Converted image: ${YELLOW}$pdf${NOFORMAT}\n"
                 else
                     error "No file selected."
                 fi
