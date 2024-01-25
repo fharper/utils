@@ -298,6 +298,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
             "  > List embedded fonts" \
             "  > List embedded images" \
             "  > List number of pages" \
+            "  > Merge two PDFs" \
             "  > Remove password protection" \
             "  ↵ Go back" \
         )
@@ -916,6 +917,27 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     gum spin --spinner line --title "Converting the PDF into a SVG file..." --  pdf2svg "$file" "$svg"
 
                     print "The file ${YELLOW}$file${NOFORMAT} has been converted to ${YELLOW}$svg${NOFORMAT}\n"
+                fi
+            fi
+
+        #
+        # Merge two PDFs
+        #
+        elif [[ "$action" == *"Merge two PDFs"* ]] ; then
+
+            if [[ $(which pdfunite | grep "not found" ) ]] ; then
+                installApp "Poppler" "https://poppler.freedesktop.org"
+            else
+                local file1=$(getFile "first PDF" ".pdf")
+
+                if [[ $file1 ]] ; then
+
+                    local file2=$(getFile "second PDF" ".pdf")
+
+                    if [[ $file2 ]] ; then
+                        pdfunite "$file1" "$file2" merged.pdf
+                        print "The files ${YELLOW}$file1${NOFORMAT} and ${YELLOW}$file2${NOFORMAT} has been merged to ${YELLOW}merged.pdf${NOFORMAT}\n"
+                    fi
                 fi
             fi
 
