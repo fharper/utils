@@ -467,6 +467,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                     gum format -- "Which video format output?"
                     local format=$(eval "$command")
+                    clearLastLine
 
                     if [[ "$format" ]] ; then
                         local filename=$(getFilename "$file")
