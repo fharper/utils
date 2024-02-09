@@ -586,7 +586,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 if [[ $site ]] ; then
                     print ""
-                    curl -sSI "$site" | grep -E 'cloudflare|Pantheon' || print "Nope"
+                    curl -sSI "$site" | grep -E 'cloudflare|Pantheon|heroku' || print "Nope"
                     print ""
                 else
                     error "No site was entered.\n"
