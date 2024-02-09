@@ -279,6 +279,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
     elif [[ "$tooling" == *"Kubernetes"* ]] ; then
         gum format -- "What do you to do with Kubernetes?"
         action=$(gum choose --height=20 --cursor="" \
+            "  > Get all namespaces (CSV)" \
             "  > Get ports fowarded" \
             "  ↵ Go back" \
         )
@@ -614,16 +615,37 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         fi
 
     #
-    # Kubernetes: get ports forwarded from a cluster
+    # Kubernetes
     #
-    elif [[ "$tooling" == *"Kubernetes"* && "$action" == *"Get ports fowarded"* ]] ; then
-        if [[ $(which kubectl | grep "not found" ) ]] ; then
-            installApp "kubectl" "https://github.com/kubernetes/kubectl"
-        else
-            local result=$(kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"')
+    elif [[ "$tooling" == *"Kubernetes"* ]] ; then
 
-            if [[ ! "$result" ]] ; then
-                error "No ports are forwarded.\n"
+        #
+        # get ports forwarded from a cluster
+        #
+        if [[ "$action" == *"Get ports fowarded"* ]] ; then
+
+            if [[ $(which kubectl | grep "not found" ) ]] ; then
+                installApp "kubectl" "https://github.com/kubernetes/kubectl"
+            else
+                local result=$(kubectl get svc -o json | jq '.items[] | {name:.metadata.name, p:.spec.ports[] } | select( .p.nodePort != null ) | "\(.name): localhost:\(.p.nodePort) -> \(.p.port) -> \(.p.targetPort)"')
+
+                if [[ ! "$result" ]] ; then
+                    error "No ports are forwarded.\n"
+                fi
+            fi
+
+        #
+        # Get all namespaces (CSV)
+        #
+        elif [[ "$action" == *"Get all namespaces (CSV)"* ]] ; then
+
+            if [[ $(which kubectl | grep "not found" ) ]] ; then
+                installApp "kubectl" "https://github.com/kubernetes/kubectl"
+            elif [[ $(which jq | grep "not found" ) ]] ; then
+                installApp "jq" "https://github.com/jqlang/jq"
+            else
+                kubectl get namespaces --output='json' | jq '.items.[].metadata.name' | tr '\n' ',' | tr -d "\"" | sed 's/.$//'
+                print
             fi
         fi
 
