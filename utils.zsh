@@ -495,8 +495,8 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 if [[ "$file" ]] ; then
                     local filename=$(getFilename "$file")
-                    local audioFile="$filename.aac"
-                    ffmpeg -i "$file" -vn -acodec copy "$audioFile"
+                    local audioFile="$filename.wav"
+                    ffmpeg -i "$file" "$audioFile"
 
                     print "\nExtracted audio: ${YELLOW}$audioFile${NOFORMAT}\n"
                 fi
