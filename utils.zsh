@@ -217,6 +217,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         "  ﹥ PDF" \
         "  ﹥ System" \
         "  ﹥ WAV" \
+        "  ﹥ WEBP" \
         "  ﹥ YouTube" \
         "     EXIT" \
     )
@@ -319,6 +320,14 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         gum format -- "What do you to do with the WAV file?"
         action=$(gum choose --height=20 --cursor="" \
             "  > Convert to MP3" \
+            "  ↵ Go back" \
+        )
+
+    # WEBP Actions Submenu
+    elif [[ "$tooling" == *"WEBP"* ]] ; then
+        gum format -- "What do you to do with the WEBP file?"
+        action=$(gum choose --height=20 --cursor="" \
+            "  > Convert to JPG" \
             "  ↵ Go back" \
         )
 
@@ -967,7 +976,6 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
         fi
 
-
     #
     # WAV: Convert to MP3
     #
@@ -982,6 +990,28 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 print ""
                 ffmpeg -i "$file" -acodec libmp3lame "${file/%wav/mp3}";
                 print ""
+            else
+                error "No file selected."
+            fi
+        fi
+
+    #
+    # WEBP: Convert to JPG
+    #
+    elif [[ "$tooling" == *"WEBP"* && "$action" == *"Convert to JPG"* ]] ; then
+
+        if [[ $(which convert | grep "not found" ) ]] ; then
+            installApp "ImageMagick" "https://github.com/ImageMagick/ImageMagick"
+        else
+            print ""
+            local file=$(getFile "WEBP" ".webp")
+
+            if [[ $file ]] ; then
+                local jpg="${file/%webp/jpg}"
+
+                print ""
+                convert "$file" "$jpg";
+                print "${YELLOW}$file${NOFORMAT} converted to ${YELLOW}$jpg${NOFORMAT}\n"
             else
                 error "No file selected."
             fi
