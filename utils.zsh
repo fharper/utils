@@ -693,7 +693,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                    gum spin --spinner line --title "Converting the PDF pages into images..." -- convert -density 300 -quality 100 "$background" "$file" "pdf-images/$filename.jpg"
 
-                    print "The images are in the ${YELLOW}pdf-images${NOFORMAT} folder\n"
+                    print "The images of the pages from ${YELLOW}$file${NOFORMAT} are in the ${YELLOW}pdf-images${NOFORMAT} folder\n"
                 else
                     error "No file selected."
                 fi
