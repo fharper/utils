@@ -104,7 +104,7 @@ function getFile {
 
     if [[ $files ]] ; then
         print "Please select a ${YELLOW}$1${NOFORMAT}" >&2
-        file=$(/bin/ls | egrep "$2" | gum choose)
+        file=$(/bin/ls  | sort -f | egrep "$2" | gum choose)
     else
         print "No $1 in this folder: you need to enter the ${YELLOW}full path of the $1${NOFORMAT} manually" >&2
         file=$(gum input --placeholder "/Users/fharper/Downloads/your-file$2")
