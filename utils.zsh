@@ -661,6 +661,14 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
             if [[ $(which convert | grep "not found" ) ]] ; then
                 installApp "ImageMagick" "https://github.com/ImageMagick/ImageMagick"
             else
+                print "Do you want them with a white background?"
+                local background=$(gum choose --height=20 --cursor="" --selected="Yes" \
+                    "  Yes" \
+                    "  No" \
+                )
+                clearLastLine
+
+                print ""
                 local file=$(getFile "PDF" ".pdf")
 
                 if [[ $file ]] ; then
@@ -668,20 +676,13 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     local filename=$(basename "$file" .pdf)
                     mkdir -p pdf-images
 
-                    print "Do you want them with a white background?"
-                    local background=$(gum choose --height=20 --cursor="" --selected="Yes" \
-                        "  Yes" \
-                        "  No" \
-                    )
-                    clearLastLine
-
                     if [[ $background == *"Yes"* ]] ; then
-                        background="-background white -alpha remove -alpha off"
+                        background=" -background white -alpha remove -alpha off"
                     else
                         background=""
                     fi
 
-                    gum spin --spinner line --title "Converting the PDF pages into images..." -- convert -density 300 "$file" -quality 100 "$background" "pdf-images/$filename.jpg"
+                   gum spin --spinner line --title "Converting the PDF pages into images..." -- convert -density 300 -quality 100 "$background" "$file" "pdf-images/$filename.jpg"
 
                     print "The images are in the ${YELLOW}pdf-images${NOFORMAT} folder\n"
                 else
