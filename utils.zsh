@@ -212,6 +212,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         "  ﹥ Any Video" \
         "  ﹥ Apple" \
         "  ﹥ GitHub" \
+        "  ﹥ HEIC" \
         "  ﹥ HTTP" \
         "  ﹥ Kubernetes" \
         "  ﹥ PDF" \
@@ -264,6 +265,14 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         gum format -- "What do you to do with GitHub?"
         action=$(gum choose --height=20 --cursor="" \
             "  > Get user information" \
+            "  ↵ Go back" \
+        )
+
+    # HEIC Actions Submenu
+    elif [[ "$tooling" == *"HEIC"* ]] ; then
+        gum format -- "What do you to do with the HEIC file?"
+        action=$(gum choose --height=20 --cursor="" \
+            "  > Convert to JPG" \
             "  ↵ Go back" \
         )
 
@@ -579,6 +588,28 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                 else
                     error "No username was entered."
                 fi
+            fi
+        fi
+
+    #
+    # HEIC: Convert to JPG
+    #
+    elif [[ "$tooling" == *"HEIC"* && "$action" == *"Convert to JPG"* ]] ; then
+
+        if [[ $(which convert | grep "not found" ) ]] ; then
+            installApp "ImageMagick" "https://github.com/ImageMagick/ImageMagick"
+        else
+            print
+            local file=$(getFile "HEIC" ".heic")
+
+            if [[ $file ]] ; then
+                local jpg=${file/%heic/jpg}
+
+                print
+                gum spin --spinner line --title "Converting the HEIC image to JPG..." -- convert "$file" "$jpg"
+                print "\n ${YELLOW}$file${NOFORMAT} was converted to ${YELLOW}$jpg${NOFORMAT}\n"
+            else
+                error "No file selected."
             fi
         fi
 
