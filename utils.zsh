@@ -264,6 +264,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
     elif [[ "$tooling" == *"GitHub"* ]] ; then
         gum format -- "What do you to do with GitHub?"
         action=$(gum choose --height=20 --cursor="" \
+            "  > Get total of PR merged for an user in a repository" \
             "  > Get user information" \
             "  ↵ Go back" \
         )
@@ -569,9 +570,59 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
     elif [[ "$tooling" == *"GitHub"* ]] ; then
 
         #
+        # Get total of PR merged for an user in a repository
+        #
+        if [[ "$action" == *"Get total of PR merged for an user in a repository"* ]] ; then
+            if [[ $(which curl | grep "not found" ) ]] ; then
+                installApp "curl" "https://github.com/curl/curl"
+            elif [[ $(which jq | grep "not found" ) ]] ; then
+                    installApp "jq" "https://github.com/jqlang/jq"
+            else
+                gum format -- "Which username?"
+                local username=$(gum input --placeholder "fharper")
+                clearLastLine
+
+                if [[ $username ]] ; then
+
+                    gum format -- "Which repository?"
+                    local repository=$(gum input --placeholder "fharper/coffeechat")
+                    clearLastLine
+
+                    if [[ $repository ]] ; then
+
+                        gum format -- "Starting on which date (YYYY-MM-DD)?"
+                        local date_from=$(gum input --placeholder "2023-10-01")
+                        clearLastLine
+
+                        if [[ $date_from ]] ; then
+
+                            gum format -- "Ending on which date (YYYY-MM-DD)?"
+                            local date_to=$(gum input --placeholder "2023-12-31")
+                            clearLastLine
+
+                            if [[ $date_to ]] ; then
+
+                                total_pr=$(gum spin --show-output --spinner line --title "Getting total number of PR..." -- curl -s "https://api.github.com/search/issues?q=repo:$repository%20author:$username%20is:pr%20is:merged%20merged:$date_from..$date_to" | jq '.total_count')
+
+                                print "Number of PR for ${YELLOW}$username${NOFORMAT} on ${YELLOW}$repository${NOFORMAT} between ${YELLOW}$date_from${NOFORMAT} and ${YELLOW}$date_to${NOFORMAT} is ${YELLOW}$total_pr${NOFORMAT}\n"
+                            else
+                                error "No from date was entered."
+                            fi
+                        else
+                            error "No from date was entered."
+                        fi
+                    else
+                        error "No repository was entered."
+                    fi
+                else
+                    error "No username was entered."
+                fi
+            fi
+
+        #
         # Get user information
         #
-        if [[ "$action" == *"Get user information"* ]] ; then
+        elif [[ "$action" == *"Get user information"* ]] ; then
             if [[ $(which curl | grep "not found" ) ]] ; then
                 installApp "curl" "https://github.com/curl/curl"
             elif [[ $(which jq | grep "not found" ) ]] ; then
