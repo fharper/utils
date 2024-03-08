@@ -555,26 +555,31 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
         fi
 
     #
-    # GitHub: get information about an user
+    # GitHub
     #
-    elif [[ "$tooling" == *"GitHub"* && "$action" == *"Get user information"* ]] ; then
-        if [[ $(which curl | grep "not found" ) ]] ; then
-            installApp "curl" "https://github.com/curl/curl"
-        fi
+    elif [[ "$tooling" == *"GitHub"* ]] ; then
 
-        if [[ $(which jq | grep "not found" ) ]] ; then
-                installApp "jq" "https://github.com/jqlang/jq"
-        fi
+        #
+        # Get user information
+        #
+        if [[ "$action" == *"Get user information"* ]] ; then
+            if [[ $(which curl | grep "not found" ) ]] ; then
+                installApp "curl" "https://github.com/curl/curl"
+            elif [[ $(which jq | grep "not found" ) ]] ; then
+                    installApp "jq" "https://github.com/jqlang/jq"
+            else
+                gum format -- "Which username?"
+                local username=$(gum input --placeholder "fharper")
+                clearLastLine
 
-        gum format -- "Which username?"
-        local username=$(gum input --placeholder "fharper")
-        clearLastLine
-
-        if [[ $username ]] ; then
-            print ""
-            curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq -r '.name, .email, .blog' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq -r '.[] .url'
-        else
-            error "No username was entered."
+                if [[ $username ]] ; then
+                    print ""
+                    curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username" | jq -r '.name, .email, .blog' && curl -sS -H "Authorization: Bearer $GITHUB_TOKEN" "$github_api/users/$username/social_accounts" | jq -r '.[] .url'
+                    print ""
+                else
+                    error "No username was entered."
+                fi
+            fi
         fi
 
     #
