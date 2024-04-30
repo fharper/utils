@@ -1121,7 +1121,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
             else
                 local info=("OS" "Browsers" "Internet Connection")
-                local infoUnselected=("Displays" "Terminal & Shell" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions")
+                local infoUnselected=("Displays" "Terminal & Shell" "SDKs" "Docker" "Clouds CLIs" "IDEs" "Visual Studio Extensions" "External IP Address")
 
                 local command="gum choose"
 
@@ -1450,6 +1450,18 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
                     data="${data}-------------------------------${NOFORMAT}\n"
 
                     data="${data}$(code --list-extensions --show-versions)"
+                fi
+
+                #External IP Address
+                if [[ ${selectedInfo[(ie)External IP Address]} -le ${#selectedInfo} ]] ; then
+                    print "Getting the ${YELLOW}external IP address${NOFORMAT}[$step/$steps]"
+                    ((step++))
+
+                    data="${data}${YELLOW}---------------------\n"
+                    data="${data} External IP Address \n"
+                    data="${data}---------------------${NOFORMAT}\n"
+
+                    data="${data}$(curl https://ipinfo.io/ip)"
                 fi
 
                 # Display the system information
