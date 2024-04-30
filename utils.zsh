@@ -1139,7 +1139,7 @@ while [[ "$tooling" != *"EXIT"* ]] ; do
 
                 #Selecting all the choices
                 for what in "$info[@]"; do
-                    command="$command --selected=\"$what\""
+                    command="$command  --height=20 --selected=\"$what\""
                 done
 
                 gum format -- "What information about your system do you need?"
